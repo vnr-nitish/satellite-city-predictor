@@ -58,3 +58,29 @@ actual working sessions, not verbatim transcripts.
   seconds, versus a few hundred for a typical ISS/Hubble pass) turned out to be
   a genuine, useful illustration of the assignment's "differences between LEO
   and other orbits" requirement rather than a data error.
+- Reorganized the project to live directly at the workspace root actually open
+  in the editor (rather than as a nested subfolder), so the working files and
+  the assistant session stay in the same place instead of requiring a folder
+  switch that would disconnect the running session.
+
+## Session 3 — Browser Verification (2026-09-10)
+
+- Rather than trusting the API-level testing from Session 2, actually launched
+  the app and drove it with a headless browser (Playwright) to see what a real
+  user would see, and caught two bugs that curl-based testing had missed:
+  - The Chart.js CDN URL referenced a version/filename combination that
+    doesn't exist (404), so the insights dashboard silently failed to render
+    with a `Chart is not defined` error. Corrected to a version that actually
+    resolves.
+  - The startup satellite-data refresh ran synchronously against Celestrak,
+    which blocked the entire server (including basic health checks) from
+    responding at all until every satellite group finished fetching - on a
+    slow run this left the app completely unresponsive for over a minute.
+    Moved the refresh to a background thread so the server is reachable
+    immediately, with satellite data populating shortly after.
+  - Also added startup logging for TLE-refresh failures, which had previously
+    failed silently, making a stale/empty cache hard to diagnose.
+- Confirmed via screenshot that the fixed app actually works end-to-end: city
+  selection, the upcoming-passes list, the animated ground-track on the map,
+  and both dashboard charts all render correctly with live data and no
+  console errors.

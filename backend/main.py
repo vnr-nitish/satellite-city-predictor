@@ -1,3 +1,5 @@
+import logging
+import threading
 from collections import Counter
 from pathlib import Path
 
@@ -9,15 +11,33 @@ from db import get_all_tles, init_db
 from propagate import get_passes, get_track
 from tle_fetch import refresh_curated_satellites
 
+logger = logging.getLogger("satellite_app")
+
 app = FastAPI(title="Satellites Over My City Predictor")
 
 FRONTEND_DIR = Path(__file__).parent.parent / "frontend"
 
 
+def _refresh_in_background():
+    result = refresh_curated_satellites()
+    for error in result.get("errors", []):
+        logger.warning("TLE refresh error: %s", error)
+    if not get_all_tles():
+        logger.warning(
+            "Satellite cache is empty after startup refresh - Celestrak may be "
+            "temporarily unavailable. POST /api/refresh to retry."
+        )
+
+
 @app.on_event("startup")
 def startup():
     init_db()
-    refresh_curated_satellites()
+    # Celestrak can be slow or briefly unavailable; fetching it here
+    # synchronously would block the whole server (even /api/cities) from
+    # responding until every group finishes. Do it in the background instead
+    # so the app is immediately reachable, with an empty satellite list until
+    # the first refresh completes.
+    threading.Thread(target=_refresh_in_background, daemon=True).start()
 
 
 @app.get("/api/cities")
