@@ -32,7 +32,10 @@ backend/
   db.py          SQLite schema/helpers
   cities.py      curated city -> lat/lon lookup
 frontend/
-  index.html, style.css, app.js, dashboard.js
+  index.html, style.css
+  app.js         city passes: map, ground-track animation, pass list
+  dashboard.js   insights dashboard charts
+  global.js      bonus: live global tracking map
 ```
 
 ## Data Sources
@@ -97,6 +100,10 @@ itself a small piece of real data analysis rather than a hardcoded label.
 - List of upcoming passes (start time, peak elevation, duration)
 - Insights dashboard: orbit-type distribution, passes/day, average pass duration, most
   frequently visible satellites
+- **Bonus feature — live global tracking**: a second map showing the real-time current
+  position of every curated satellite worldwide, color-coded by orbit type and polling
+  `/api/live-positions` every 5 seconds. This is computed entirely locally from cached
+  TLEs (no external calls per refresh), so it's cheap enough to poll continuously.
 
 ## Running Locally
 

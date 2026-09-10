@@ -8,7 +8,7 @@ from fastapi.staticfiles import StaticFiles
 
 from cities import get_city_coords, list_cities
 from db import get_all_tles, init_db
-from propagate import get_passes, get_track
+from propagate import get_live_positions, get_passes, get_track
 from tle_fetch import refresh_curated_satellites
 
 logger = logging.getLogger("satellite_app")
@@ -100,6 +100,11 @@ def api_insights(city: str = Query(...), hours: float = Query(48, ge=1, le=168))
         "average_duration_seconds": avg_duration,
         "top_satellites": [{"name": n, "passes": c} for n, c in top_satellites],
     }
+
+
+@app.get("/api/live-positions")
+def api_live_positions():
+    return {"positions": get_live_positions()}
 
 
 @app.post("/api/refresh")

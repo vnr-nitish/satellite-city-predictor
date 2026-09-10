@@ -46,11 +46,26 @@
         </div>
       </div>
     </section>
+
+    <section class="global-panel">
+      <div class="global-header">
+        <h2>Live Global Tracking</h2>
+        <span id="live-updated" class="live-updated"></span>
+      </div>
+      <div id="globalMap"></div>
+      <div class="legend">
+        <span><i class="dot leo"></i>LEO</span>
+        <span><i class="dot meo"></i>MEO</span>
+        <span><i class="dot geo"></i>GEO</span>
+        <span><i class="dot heo"></i>HEO</span>
+      </div>
+    </section>
   </main>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.1/chart.umd.min.js"></script>
   <script src="app.js"></script>
   <script src="dashboard.js"></script>
+  <script src="global.js"></script>
 </body>
 </html>

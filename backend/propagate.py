@@ -104,6 +104,31 @@ def _iso_to_dt(iso_str):
     return datetime.fromisoformat(iso_str.replace("Z", "+00:00"))
 
 
+def get_live_positions():
+    """Current lat/lon/altitude for every curated satellite, computed locally
+    from cached TLEs - no external API call, so this is cheap enough to poll
+    every few seconds for a live global-tracking view."""
+    now = _ts.now()
+    positions = []
+    for row in get_all_tles():
+        sat = _build_satellite(row)
+        try:
+            subpoint = wgs84.subpoint(sat.at(now))
+        except Exception:
+            continue
+        positions.append(
+            {
+                "norad_id": row["norad_id"],
+                "name": row["name"],
+                "orbit_type": row["orbit_type"],
+                "lat": round(subpoint.latitude.degrees, 4),
+                "lon": round(subpoint.longitude.degrees, 4),
+                "alt_km": round(subpoint.elevation.km, 1),
+            }
+        )
+    return positions
+
+
 def get_track(norad_id: int, start_iso: str, end_iso: str, step_seconds: int = 15):
     row = get_tle(norad_id)
     if not row:

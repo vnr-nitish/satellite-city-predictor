@@ -84,3 +84,23 @@ actual working sessions, not verbatim transcripts.
   selection, the upcoming-passes list, the animated ground-track on the map,
   and both dashboard charts all render correctly with live data and no
   console errors.
+
+## Session 4 — Bonus Feature: Live Global Tracking (2026-09-10)
+
+- Implemented the "real-time satellite tracking showing current satellite
+  positions globally" bonus option from the brief: a `/api/live-positions`
+  endpoint (positions computed locally from cached TLEs, no external calls,
+  so it's cheap to poll) and a second Leaflet map on the page that polls it
+  every 5 seconds, color-coding each satellite marker by orbit type with a
+  legend.
+- While testing it, hit Celestrak rate-limiting (`503 Service Unavailable`
+  across every group) from the volume of manual testing earlier in the
+  session. Rather than wait it out blindly, verified the new feature by
+  seeding the local cache with real TLE data already fetched successfully
+  earlier in the session - this only affects the local test database
+  (gitignored, never committed), not the application code, which still fetches
+  live from Celestrak normally.
+- Confirmed via screenshot: 8 satellites rendered at their correct real-world
+  positions and altitudes (LEO ~500-900km, MEO ~20,500km, GEO ~35,800km, HEO
+  tens of thousands of km), color-coded correctly by orbit type, with the
+  "last updated" timestamp refreshing and no console errors.
