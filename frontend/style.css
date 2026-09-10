@@ -1,0 +1,30 @@
+* { box-sizing: border-box; }
+body { margin: 0; font-family: system-ui, sans-serif; background: #0b1120; color: #e2e8f0; }
+header { padding: 16px 24px; background: #111827; display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
+header h1 { margin: 0; font-size: 1.3rem; }
+.controls { display: flex; gap: 8px; align-items: center; }
+select, button { padding: 6px 10px; border-radius: 6px; border: 1px solid #334155; background: #1e293b; color: #e2e8f0; }
+button { cursor: pointer; background: #2563eb; border: none; }
+button:hover { background: #1d4ed8; }
+
+main { display: flex; flex-direction: column; gap: 24px; padding: 24px; }
+
+.map-panel { display: flex; gap: 16px; flex-wrap: wrap; }
+#map { flex: 2 1 500px; height: 420px; min-width: 300px; border-radius: 8px; overflow: hidden; }
+.pass-list-wrap { flex: 1 1 280px; background: #111827; border-radius: 8px; padding: 12px 16px; max-height: 420px; overflow-y: auto; }
+.pass-list-wrap h2 { font-size: 1rem; margin-top: 0; }
+#pass-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
+#pass-list li { background: #1e293b; padding: 8px 10px; border-radius: 6px; font-size: 0.85rem; cursor: pointer; }
+#pass-list li:hover { background: #273449; }
+#pass-list li .sat-name { font-weight: 600; }
+#pass-list li .orbit-tag { font-size: 0.7rem; color: #93c5fd; text-transform: uppercase; }
+
+.dashboard-panel h2 { font-size: 1rem; }
+.charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+.chart-card { background: #111827; border-radius: 8px; padding: 12px 16px; }
+.chart-card h3 { font-size: 0.85rem; margin: 0 0 8px 0; color: #94a3b8; }
+.stat-card p { font-size: 2rem; margin: 8px 0 0 0; font-weight: 700; }
+
+@media (max-width: 480px) {
+  header { flex-direction: column; align-items: flex-start; }
+}

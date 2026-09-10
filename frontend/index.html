@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Satellites Over My City</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>Satellites Over My City</h1>
+    <div class="controls">
+      <label for="city-select">City</label>
+      <select id="city-select"></select>
+      <button id="refresh-btn">Find Passes</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="map-panel">
+      <div id="map"></div>
+      <div class="pass-list-wrap">
+        <h2>Upcoming Passes (next 48h)</h2>
+        <ul id="pass-list"></ul>
+      </div>
+    </section>
+
+    <section class="dashboard-panel">
+      <h2>Insights Dashboard</h2>
+      <div class="charts-grid">
+        <div class="chart-card">
+          <h3>Orbit Type Distribution</h3>
+          <canvas id="orbitTypeChart"></canvas>
+        </div>
+        <div class="chart-card">
+          <h3>Top Satellites by Pass Count</h3>
+          <canvas id="topSatellitesChart"></canvas>
+        </div>
+        <div class="chart-card stat-card">
+          <h3>Passes per Day</h3>
+          <p id="passesPerDayStat">-</p>
+        </div>
+        <div class="chart-card stat-card">
+          <h3>Average Pass Duration</h3>
+          <p id="avgDurationStat">-</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+  <script src="app.js"></script>
+  <script src="dashboard.js"></script>
+</body>
+</html>
