@@ -23,8 +23,10 @@ orbital path on a map, along with a dashboard of derived insights.
   why this isn't a SQLite file).
 - **Frontend**: Plain HTML/CSS/JS, [Leaflet](https://leafletjs.com/) for the maps and
   animated ground track, [Chart.js](https://www.chartjs.org/) for the insights
-  dashboard. No build tooling required. Two tabs: "Map & Passes" (location picker, map,
-  pass lists, dashboard, glossary) and "Global Tracking" (live world map).
+  dashboard, [globe.gl](https://github.com/vasturiano/globe.gl) (Three.js/WebGL) for the
+  Home page's rotating globe. No build tooling required. Three tabs: "Home" (intro,
+  rotating globe, how-it-works, glossary), "Map & Passes" (location picker, map, pass
+  lists, dashboard), and "Global Tracking" (live world map).
 
 ```
 backend/
@@ -40,7 +42,8 @@ frontend/
                  pass lists, best-pass spotlight
   dashboard.js   insights dashboard charts
   global.js      bonus: live global tracking map
-  tabs.js        tab switching between the two views
+  home-globe.js  Home page's rotating 3D globe (plots the same live satellite data)
+  tabs.js        tab switching between the three views
   notifications.js  bonus: client-side pass alerts
 api/
   index.py       Vercel entrypoint (imports the FastAPI app from backend/)
@@ -108,7 +111,26 @@ itself a small piece of real data analysis rather than a hardcoded label.
 
 ## Features
 
-**Tab 1 - Map & Passes**
+**Tab 1 - Home**
+
+- Hero section pitching what the site does, with buttons that jump straight to
+  "Map & Passes" or "Global Tracking"
+- **Rotating 3D globe** (globe.gl / Three.js/WebGL): not just decorative - it plots the
+  same real satellites from `/api/live-positions` as the Global Tracking tab, color-coded
+  by orbit type, auto-rotating (paused automatically for visitors with "reduce motion"
+  accessibility settings enabled), refreshing every 30 seconds
+- "How It Works" - a plain-language walkthrough of why satellites produce "passes" at
+  all, and how this site calculates them (real TLEs from Celestrak, real SGP4 orbital
+  mechanics, for any point on Earth)
+- An explanation of how "Best Pass" is actually chosen (filter to visible passes, then
+  rank by peak elevation) - not just what the feature does, but why elevation is the
+  deciding factor
+- **Glossary**: a field guide to every term used across the app (Pass, Elevation,
+  Azimuth, Altitude, Orbit Type, Visible/Sunlit, Ground Track, TLE), one concept per
+  card, 4 per row on wide screens - aimed at a first-time visitor who doesn't yet know
+  what "elevation 62°, azimuth 226°" means, not just an orbit-type reference
+
+**Tab 2 - Map & Passes**
 
 - City selector *or* click anywhere on the map - both work as location input, resolved
   by the same backend endpoints (`city=` or `lat=`/`lon=` query params). A map click
@@ -138,10 +160,6 @@ itself a small piece of real data analysis rather than a hardcoded label.
   passes last minutes, MEO/HEO passes can last hours, visually obvious at a glance),
   passes/day, average pass duration, most frequently *visible* satellites (sunlit,
   not just geometrically above the horizon)
-- **Glossary**: a field guide to every term used across the app (Pass, Elevation,
-  Azimuth, Altitude, Orbit Type, Visible/Sunlit, Ground Track, TLE), one concept per
-  card, 4 per row on wide screens - aimed at a first-time visitor who doesn't yet know
-  what "elevation 62°, azimuth 226°" means, not just an orbit-type reference
 - **Best Pass spotlight**: sits in the Insights Dashboard's stat row, automatically
   highlighting the single best upcoming viewing opportunity (the visible pass with the
   highest peak elevation) with a live countdown to rise time - an answer to "what's
@@ -153,7 +171,7 @@ itself a small piece of real data analysis rather than a hardcoded label.
   fires while the tab stays open, which the status text says plainly rather than
   implying something more reliable than it is
 
-**Tab 2 - Global Tracking**
+**Tab 3 - Global Tracking**
 
 - **Bonus feature - live global tracking**: a map showing the real-time current
   position of every curated satellite worldwide, color-coded by orbit type and polling

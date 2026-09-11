@@ -13,79 +13,65 @@
       <span class="brand-icon">&#128752;</span>
       <h1>Satellites Over My City</h1>
     </a>
-    <div class="controls">
-      <label for="city-select">City</label>
-      <select id="city-select"></select>
-      <button id="refresh-btn">Find Passes</button>
-    </div>
     <nav class="tab-nav">
-      <button class="tab-btn active" data-tab="tab-map-passes" type="button">Map &amp; Passes</button>
+      <button class="tab-btn active" data-tab="tab-home" type="button">Home</button>
+      <button class="tab-btn" data-tab="tab-map-passes" type="button">Map &amp; Passes</button>
       <button class="tab-btn" data-tab="tab-global-tracking" type="button">Global Tracking</button>
     </nav>
   </header>
 
   <main>
-    <div id="tab-map-passes" class="tab-panel">
-      <section id="map-section" class="map-panel">
-        <div class="map-card map-card-full">
-          <div id="animating-indicator" class="animating-indicator" hidden>
-            <span>&#9679; Animating <strong id="animating-name"></strong>
-              <span id="ground-track-note" class="ground-track-note"></span>
-            </span>
-            <button id="stop-animation-btn" type="button">Stop</button>
-          </div>
-          <div id="map"></div>
-          <p class="map-hint">Click anywhere on the map to check passes for that exact point, or pick a city above.</p>
-        </div>
-
-        <div class="notify-bar">
-          <button id="enable-notifications-btn" type="button">&#128276; Notify me before good passes</button>
-          <span id="notify-status" class="hint"></span>
-        </div>
-
-        <div class="split-row">
-          <div class="pass-list-wrap">
-            <h2>Visible Right Now</h2>
-            <ul id="visible-now-list"></ul>
-          </div>
-          <div class="pass-list-wrap">
-            <h2>Upcoming Passes <span class="hint">(next 48h)</span></h2>
-            <ul id="pass-list"></ul>
-          </div>
+    <div id="tab-home" class="tab-panel">
+      <section class="hero">
+        <h2 class="hero-title">See exactly when satellites pass over your sky</h2>
+        <p class="hero-pitch">
+          Pick any city - or click any point on the map - and this site calculates real
+          satellite passes for that spot: when they rise, how high they climb, and whether
+          they'll actually be visible to the eye. Every number comes from live orbital data
+          (NORAD/Celestrak) run through real orbital mechanics, not a lookup table.
+        </p>
+        <div class="hero-actions">
+          <button class="hero-btn primary" data-goto-tab="tab-map-passes" type="button">Find Passes for My City</button>
+          <button class="hero-btn" data-goto-tab="tab-global-tracking" type="button">View Live Tracker</button>
         </div>
       </section>
 
+      <div class="globe-section">
+        <div id="globe-container"></div>
+        <p class="hint globe-caption">Live positions of the satellites tracked on this site, updated automatically.</p>
+      </div>
+
       <div class="section-divider"></div>
 
-      <section id="dashboard-section" class="dashboard-panel">
-        <h2>Insights Dashboard</h2>
-        <div class="charts-row">
-          <div class="chart-card">
-            <h3>Orbit Type Distribution</h3>
-            <div class="chart-canvas-wrap"><canvas id="orbitTypeChart"></canvas></div>
-            <p class="chart-empty" hidden>No passes in this window yet - satellite data may still be loading.</p>
+      <section class="how-it-works">
+        <h2>How It Works</h2>
+        <div class="how-grid">
+          <div class="how-card">
+            <div class="how-step">1</div>
+            <h3>Satellites orbit at different heights and speeds</h3>
+            <p>A satellite close to Earth (like the ISS) circles it in about 90 minutes; one
+              far away can take 12 hours or more.</p>
           </div>
-          <div class="chart-card">
-            <h3>LEO vs. Other Orbits: Avg. Pass Duration</h3>
-            <div class="chart-canvas-wrap"><canvas id="orbitDurationChart"></canvas></div>
-            <p class="chart-empty" hidden>No passes in this window yet - satellite data may still be loading.</p>
+          <div class="how-card">
+            <div class="how-step">2</div>
+            <h3>From the ground, that looks like a "pass"</h3>
+            <p>As Earth turns and the satellite moves, it periodically rises above your
+              horizon, crosses the sky, then sets - that whole event is a pass.</p>
           </div>
-          <div class="chart-card">
-            <h3>Most Frequently Visible Satellites</h3>
-            <div class="chart-canvas-wrap"><canvas id="topSatellitesChart"></canvas></div>
-            <p class="chart-empty" hidden>No visible passes in this window yet - satellite data may still be loading.</p>
+          <div class="how-card">
+            <div class="how-step">3</div>
+            <h3>This site calculates that for any point on Earth</h3>
+            <p>Using real orbital data (TLEs from Celestrak) and the same SGP4 propagation
+              method used in real satellite tracking, for any city or any point you click.</p>
           </div>
         </div>
-        <div class="stats-row">
-          <div id="best-pass-spotlight" class="chart-card spotlight-card" hidden></div>
-          <div class="chart-card stat-card">
-            <h3>Passes per Day</h3>
-            <p id="passesPerDayStat">-</p>
-          </div>
-          <div class="chart-card stat-card">
-            <h3>Average Pass Duration</h3>
-            <p id="avgDurationStat">-</p>
-          </div>
+        <div class="best-pass-explainer">
+          <h3>How "Best Pass" is chosen</h3>
+          <p>Among all upcoming passes, we filter down to the ones that will actually be
+            <strong>visible to the eye</strong> - sunlit, not just geometrically above the
+            horizon - then highlight whichever one climbs <strong>highest in the sky</strong>.
+            The higher a pass peaks, the easier it is to spot and the longer it stays clear of
+            horizon haze and obstructions, which is why elevation is the deciding factor.</p>
         </div>
       </section>
 
@@ -154,6 +140,77 @@
       </section>
     </div>
 
+    <div id="tab-map-passes" class="tab-panel" hidden>
+      <section id="map-section" class="map-panel">
+        <div class="location-bar">
+          <label for="city-select">City</label>
+          <select id="city-select"></select>
+          <button id="refresh-btn">Find Passes</button>
+          <span class="hint location-bar-hint">or click anywhere on the map below</span>
+        </div>
+
+        <div class="map-card map-card-full">
+          <div id="animating-indicator" class="animating-indicator" hidden>
+            <span>&#9679; Animating <strong id="animating-name"></strong>
+              <span id="ground-track-note" class="ground-track-note"></span>
+            </span>
+            <button id="stop-animation-btn" type="button">Stop</button>
+          </div>
+          <div id="map"></div>
+        </div>
+
+        <div class="notify-bar">
+          <button id="enable-notifications-btn" type="button">&#128276; Notify me before good passes</button>
+          <span id="notify-status" class="hint"></span>
+        </div>
+
+        <div class="split-row">
+          <div class="pass-list-wrap">
+            <h2>Visible Right Now</h2>
+            <ul id="visible-now-list"></ul>
+          </div>
+          <div class="pass-list-wrap">
+            <h2>Upcoming Passes <span class="hint">(next 48h)</span></h2>
+            <ul id="pass-list"></ul>
+          </div>
+        </div>
+      </section>
+
+      <div class="section-divider"></div>
+
+      <section id="dashboard-section" class="dashboard-panel">
+        <h2>Insights Dashboard</h2>
+        <div class="charts-row">
+          <div class="chart-card">
+            <h3>Orbit Type Distribution</h3>
+            <div class="chart-canvas-wrap"><canvas id="orbitTypeChart"></canvas></div>
+            <p class="chart-empty" hidden>No passes in this window yet - satellite data may still be loading.</p>
+          </div>
+          <div class="chart-card">
+            <h3>LEO vs. Other Orbits: Avg. Pass Duration</h3>
+            <div class="chart-canvas-wrap"><canvas id="orbitDurationChart"></canvas></div>
+            <p class="chart-empty" hidden>No passes in this window yet - satellite data may still be loading.</p>
+          </div>
+          <div class="chart-card">
+            <h3>Most Frequently Visible Satellites</h3>
+            <div class="chart-canvas-wrap"><canvas id="topSatellitesChart"></canvas></div>
+            <p class="chart-empty" hidden>No visible passes in this window yet - satellite data may still be loading.</p>
+          </div>
+        </div>
+        <div class="stats-row">
+          <div id="best-pass-spotlight" class="chart-card spotlight-card" hidden></div>
+          <div class="chart-card stat-card">
+            <h3>Passes per Day</h3>
+            <p id="passesPerDayStat">-</p>
+          </div>
+          <div class="chart-card stat-card">
+            <h3>Average Pass Duration</h3>
+            <p id="avgDurationStat">-</p>
+          </div>
+        </div>
+      </section>
+    </div>
+
     <div id="tab-global-tracking" class="tab-panel" hidden>
       <section id="global-section" class="global-panel">
         <div class="global-header">
@@ -180,9 +237,11 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.1/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/globe.gl@2.31.0/dist/globe.gl.min.js"></script>
   <script src="app.js"></script>
   <script src="dashboard.js"></script>
   <script src="global.js"></script>
+  <script src="home-globe.js"></script>
   <script src="tabs.js"></script>
   <script src="notifications.js"></script>
 </body>

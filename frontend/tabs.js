@@ -1,22 +1,30 @@
+function activateTab(tabId) {
+  document.querySelectorAll(".tab-btn").forEach((b) => b.classList.toggle("active", b.dataset.tab === tabId));
+  document.querySelectorAll(".tab-panel").forEach((p) => (p.hidden = p.id !== tabId));
+
+  // Leaflet/Three.js both measure their container's size when created. Any
+  // map/globe living in a tab that's hidden at that moment gets measured as
+  // zero-size (display:none), so switching to it needs an explicit re-measure
+  // - otherwise it renders into the wrong area until the window happens to
+  // resize on its own.
+  if (tabId === "tab-global-tracking" && window.globalMap) {
+    setTimeout(() => window.globalMap.invalidateSize(), 0);
+  }
+  if (tabId === "tab-map-passes" && window.map) {
+    setTimeout(() => window.map.invalidateSize(), 0);
+  }
+  if (tabId === "tab-home" && window.homeGlobe) {
+    setTimeout(() => {
+      const el = document.getElementById("globe-container");
+      window.homeGlobe.width(el.clientWidth).height(el.clientHeight);
+    }, 0);
+  }
+}
+
 document.querySelectorAll(".tab-btn").forEach((btn) => {
-  btn.addEventListener("click", () => {
-    document.querySelectorAll(".tab-btn").forEach((b) => b.classList.remove("active"));
-    document.querySelectorAll(".tab-panel").forEach((p) => (p.hidden = true));
+  btn.addEventListener("click", () => activateTab(btn.dataset.tab));
+});
 
-    btn.classList.add("active");
-    const panel = document.getElementById(btn.dataset.tab);
-    panel.hidden = false;
-
-    // Leaflet measures its container's size when the map is created. The
-    // global tracking map is initialized on page load while its tab is
-    // still hidden (display: none has zero size), so switching to it needs
-    // to tell Leaflet to re-measure - otherwise tiles render into the wrong
-    // area until the window happens to resize.
-    if (btn.dataset.tab === "tab-global-tracking" && window.globalMap) {
-      setTimeout(() => window.globalMap.invalidateSize(), 0);
-    }
-    if (btn.dataset.tab === "tab-map-passes" && window.map) {
-      setTimeout(() => window.map.invalidateSize(), 0);
-    }
-  });
+document.querySelectorAll("[data-goto-tab]").forEach((btn) => {
+  btn.addEventListener("click", () => activateTab(btn.dataset.gotoTab));
 });

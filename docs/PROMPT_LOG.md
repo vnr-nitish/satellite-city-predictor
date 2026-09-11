@@ -653,3 +653,65 @@ floating element. Reverified across the original seven device sizes plus
 five more widths spanning the 480-1200px range, and reran the full
 regression suite - zero horizontal overflow anywhere, header stays visible
 on scroll at every size tested.
+
+## Session 15 - Three-Page Restructure with a 3D Globe (2026-09-11)
+
+**Prompt:** (with a screenshot of satellitemap.space's rotating 3D Earth
+visualization for inspiration)
+> To improve the website, I've planned it this way: let the website have
+> three different pages - Home, Map & Passes, and Global Live Tracking. On
+> the intro/Home page we should explain what the website does, how
+> satellites rotate (maybe with a rotating globe like the attached image),
+> and the Glossary section can live there too, along with an explanation of
+> how "best time" is calculated. In Map & Passes, remove the city selector
+> from the navbar and put it on that page itself, alongside clicking anywhere
+> on the map; Insights will have more room now. Global tracking stays as the
+> third tab. Tell me if this is good, and plan what should go on the intro
+> page based on your experience - it should be very user-friendly,
+> responsive, and 3D animated, and should also work well on iPhone and other
+> phones.
+
+Proposed the full plan before coding: keep it as one page with tab-switching
+(not real separate URLs) to avoid duplicating the header and losing state
+across "pages"; a Home page with a hero, a live rotating 3D globe (plotting
+the actual satellites already tracked elsewhere on the site, not just
+decoration), a plain-language "How It Works" walkthrough, an explanation of
+the Best Pass logic, and the relocated Glossary; asked one concrete question
+(should Home or Map & Passes be the default landing tab) rather than
+guessing - confirmed Home.
+
+Built it:
+- Backend: unchanged - the globe reuses the existing `/api/live-positions`
+  endpoint built for the Global Tracking tab, so no new data plumbing needed.
+- Chose globe.gl (built on Three.js/WebGL) for the globe, loaded via CDN,
+  verified the exact texture and bundle URLs actually resolved before wiring
+  them in rather than assuming.
+- Moved the city selector out of the header into a new "location bar" at the
+  top of the Map & Passes page itself; the header is now just the brand and
+  three tab buttons, which incidentally also relieves the header-wrapping
+  crowding from the previous session, since there's less to fit.
+- Extended the existing tab-switching system to three tabs and added a
+  shared `activateTab()` used by both the header's tab buttons and the
+  hero's two call-to-action buttons, so "Find Passes for My City" genuinely
+  navigates rather than just looking like it does.
+- Applied the same lesson learned twice already this session (Leaflet/SVG
+  sizing when a container starts hidden) proactively to the globe: it
+  initializes correctly since Home is now the default visible tab, but a
+  resize handler still explicitly re-measures it if a visitor navigates away
+  and back, rather than assuming the WebGL canvas behaves like Leaflet's map
+  or worse.
+- Respected the OS-level "reduce motion" accessibility preference by pausing
+  the globe's auto-rotation for visitors who've asked for that.
+
+Verified thoroughly given the size of the change: confirmed Home loads by
+default with the globe actually rendering (canvas present, `homeGlobe`
+initialized), the hero CTA buttons genuinely switch tabs, the relocated city
+selector still drives real pass data on the Map & Passes page, navigating
+back to Home from elsewhere doesn't break the globe, and the Global Tracking
+tab (including its legend toggle) still works exactly as before. Caught and
+fixed one stale test assumption in the process - an existing regression
+script assumed the city selector was always visible in the header, which
+broke under the new structure; this was the test's assumption going stale
+after the app was correctly changed, not an app bug. Reran full regression
+plus a mobile screenshot of the new Home page - zero horizontal overflow,
+globe and layout both render cleanly at 390px.
