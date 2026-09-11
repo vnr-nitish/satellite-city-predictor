@@ -339,11 +339,6 @@ section > h2, .global-header h2 { font-size: 1.05rem; margin: 0 0 14px 0; font-w
 .best-pass-explainer p { font-size: 0.85rem; color: var(--text-dim); line-height: 1.6; margin: 0; }
 .best-pass-explainer strong { color: var(--text); }
 
-.orbit-type-mini-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
-.orbit-type-mini-list li { display: flex; align-items: baseline; gap: 6px; font-size: 0.8rem; color: var(--text-dim); }
-.orbit-type-mini-list .dot { width: 8px; height: 8px; margin-top: 2px; }
-.orbit-type-mini-list strong { color: var(--text); }
-
 /* ---------- Leaflet tweaks ---------- */
 .leaflet-container { background: #0e1626; }
 .leaflet-popup-content-wrapper { background: var(--panel-alt); color: var(--text); border-radius: 8px; }
