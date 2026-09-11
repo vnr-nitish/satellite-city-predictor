@@ -353,3 +353,50 @@ production traffic will hit Celestrak more often than the old 6-hour local
 cache did - documented, with a persistent host as the fallback if that
 proves too chatty in practice, rather than adding more serverless-specific
 workarounds.
+
+**Prompt:** (with two screenshots of Vercel's GitHub-import configuration
+screen: Application Preset, Root Directory, Build/Output/Install command
+fields, and Environment Variables)
+> Let me know all the options that I have to choose and the commands as well
+> as the environmental variables.
+
+Walked through each dashboard field: keep the auto-detected FastAPI preset
+and `./` root directory, leave Build Command/Output Directory/Install
+Command all at their defaults (the project's `vercel.json` already fully
+describes the build via its explicit `builds` array, which takes precedence
+over these dashboard settings regardless), and no environment variables are
+needed at all - the app has no API keys or secrets, since Celestrak,
+OpenStreetMap, and the JPL ephemeris are all public and keyless.
+
+**Prompt:**
+> I have deployed - everything is good. If you see the screenshot, I selected
+> the city Visakhapatnam, clicked on a visible satellite, but it's actually
+> showing near the coast of Africa, if I'm not wrong. I didn't understand how
+> that's happening - is the data being shown correct or not? I got the
+> question now!
+
+Confirmed the deployment itself worked, then explained why the map showed a
+GPS satellite's animated position over the Mozambique Channel while its
+"Visible Right Now" card correctly reported it visible from Visakhapatnam at
+20° elevation: the map draws the satellite's ground track (the point directly
+beneath it), not a line toward it in the sky - nearly the same thing for a
+low LEO pass, but very different for a ~20,200km-altitude MEO satellite,
+whose ground track can sit thousands of km away while it's still visible at a
+shallow angle. Verified this wasn't a bug by computing the expected ground
+distance from standard satellite-visibility geometry (~6,340 km at 20°
+elevation and GPS altitude) and confirming it matched both the distance and
+the compass direction shown in the screenshot.
+
+**Prompt:**
+> Yes! Pls do
+
+(Confirming the offer to add a visual explanation for this.) Added a dashed
+line connecting the city marker to the satellite's live ground-track
+position, redrawn every animation tick, plus a live "ground track N km away"
+readout in the animating indicator bar - both computed via Leaflet's built-in
+distance calculation. Caught and fixed my own typo while writing it (a
+stray `#` Python-style comment accidentally left in the JavaScript, which
+would have been a syntax error) before it ever reached the browser. Verified
+with a browser test against a MEO satellite (POLAR, ~1,354 km ground-track
+distance from Visakhapatnam) and confirmed the existing animation/toggle/
+regression tests still pass.

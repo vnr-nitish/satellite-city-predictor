@@ -106,7 +106,12 @@ itself a small piece of real data analysis rather than a hardcoded label.
 - List of upcoming passes (start time, end time, peak elevation, peak altitude,
   duration) - clicking a pass animates its ground track on the map; clicking it
   again (or the "Stop" button that appears above the map while animating) turns
-  it off
+  it off. A dashed line plus a live distance readout connects the city to the
+  satellite's current ground-track position - for a low LEO pass this line is
+  short, but for a MEO/GEO satellite it can stretch thousands of km, since a
+  satellite that high can sit low in your sky while its ground track is a
+  continent away. Without this, that looked like a data error rather than the
+  expected geometry it actually is.
 - "Visible right now" panel: which tracked satellites are above the horizon (and
   actually sunlit/visible) for the selected city at this exact moment - distinct from
   the upcoming-passes list, and how GEO satellites (which rarely produce a rise/set

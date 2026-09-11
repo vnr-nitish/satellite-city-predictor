@@ -1,4 +1,4 @@
-let map, cityMarker, trackLine, trackMarker, animTimer;
+let map, cityMarker, trackLine, trackMarker, connectorLine, animTimer;
 let activeTrackKey = null; // identifies which card is currently animating, for click-to-toggle
 let currentCity = null;
 
@@ -206,17 +206,45 @@ function clearTrack() {
   animTimer = null;
   if (trackLine) map.removeLayer(trackLine);
   if (trackMarker) map.removeLayer(trackMarker);
+  if (connectorLine) map.removeLayer(connectorLine);
   trackLine = null;
   trackMarker = null;
+  connectorLine = null;
   activeTrackKey = null;
   setAnimatingIndicator(null);
   document.querySelectorAll("#pass-list li, #visible-now-list li").forEach((li) => li.classList.remove("selected"));
+}
+
+// The map's blue line/marker show the satellite's ground track (the point
+// directly beneath it), not a line pointing from the city toward it in the
+// sky. Those are nearly the same thing for a low LEO pass, but for MEO/GEO
+// satellites (thousands of km up) they can be very different: a satellite
+// can sit low in your sky while its ground track is a continent away. This
+// dashed line and the live distance readout make that visible instead of
+// leaving the map looking like a data error.
+function updateGroundTrackNote(cityLatLng, satLatLng) {
+  if (!connectorLine) {
+    connectorLine = L.polyline([cityLatLng, satLatLng], {
+      color: "#f59e0b",
+      weight: 2,
+      dashArray: "6 8",
+      opacity: 0.7,
+    }).addTo(map);
+  } else {
+    connectorLine.setLatLngs([cityLatLng, satLatLng]);
+  }
+
+  const distanceKm = Math.round(cityLatLng.distanceTo(satLatLng) / 1000);
+  document.getElementById("ground-track-note").textContent =
+    `· ground track ${distanceKm.toLocaleString()} km away (dashed line)`;
 }
 
 async function animatePassWindow(noradId, startIso, endIso, satelliteName) {
   clearInterval(animTimer);
   if (trackLine) map.removeLayer(trackLine);
   if (trackMarker) map.removeLayer(trackMarker);
+  if (connectorLine) map.removeLayer(connectorLine);
+  connectorLine = null;
 
   const res = await fetch(
     `/api/track?norad_id=${noradId}&start=${encodeURIComponent(startIso)}&end=${encodeURIComponent(endIso)}&step_seconds=15`
@@ -230,11 +258,15 @@ async function animatePassWindow(noradId, startIso, endIso, satelliteName) {
   trackLine = L.polyline(latlngs, { color: "#38bdf8", weight: 3 }).addTo(map);
   trackMarker = L.circleMarker(latlngs[0], { radius: 7, color: "#f59e0b", fillColor: "#f59e0b", fillOpacity: 1, weight: 2 }).addTo(map);
 
-  map.fitBounds(trackLine.getBounds(), { maxZoom: 5, padding: [30, 30] });
+  const cityLatLng = cityMarker.getLatLng();
+  updateGroundTrackNote(cityLatLng, trackMarker.getLatLng());
+
+  map.fitBounds(L.latLngBounds(latlngs).extend(cityLatLng), { maxZoom: 5, padding: [30, 30] });
 
   let i = 0;
   animTimer = setInterval(() => {
     trackMarker.setLatLng(latlngs[i]);
+    updateGroundTrackNote(cityLatLng, trackMarker.getLatLng());
     i = (i + 1) % latlngs.length;
   }, 200);
 }
