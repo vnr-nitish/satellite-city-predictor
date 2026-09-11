@@ -41,7 +41,7 @@ function renderPassList(passes, city) {
         <div class="sat-name">${p.name}</div>
         <div class="orbit-tag">${p.orbit_type}</div>
         <div>Rise: ${rise}</div>
-        <div>Peak elevation: ${p.peak_elevation_deg}&deg;</div>
+        <div>Peak elevation: ${p.peak_elevation_deg}&deg; &middot; Altitude: ${p.peak_altitude_km} km</div>
         <div>Duration: ${p.duration_seconds}s</div>
       </li>`;
     })

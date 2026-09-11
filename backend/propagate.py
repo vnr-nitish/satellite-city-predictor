@@ -79,6 +79,7 @@ def get_passes(city_lat: float, city_lon: float, hours: float = 48, min_elevatio
                 alt, _, _ = (sat - observer).at(t).altaz()
                 current["peak_time"] = t.utc_iso()
                 current["peak_elevation_deg"] = round(alt.degrees, 1)
+                current["peak_altitude_km"] = round(wgs84.subpoint(sat.at(t)).elevation.km, 1)
             elif event == 2 and "rise_time" in current:  # set
                 current["set_time"] = t.utc_iso()
                 rise_dt = t.utc_datetime()
