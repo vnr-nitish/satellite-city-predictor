@@ -97,9 +97,13 @@ itself a small piece of real data analysis rather than a hardcoded label.
 ## Features
 
 - City selector with animated satellite ground-track visualization on a map
-- List of upcoming passes (start time, peak elevation, duration)
+- List of upcoming passes (start time, peak elevation, peak altitude, duration)
+- "Visible right now" panel: which tracked satellites are above the horizon (and
+  actually sunlit/visible) for the selected city at this exact moment - distinct from
+  the upcoming-passes list, and how GEO satellites (which rarely produce a rise/set
+  event) show up at all
 - Insights dashboard: orbit-type distribution, passes/day, average pass duration, most
-  frequently visible satellites
+  frequently *visible* satellites (sunlit, not just geometrically above the horizon)
 - **Bonus feature — live global tracking**: a second map showing the real-time current
   position of every curated satellite worldwide, color-coded by orbit type and polling
   `/api/live-positions` every 5 seconds. This is computed entirely locally from cached

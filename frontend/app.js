@@ -25,7 +25,31 @@ async function loadPasses() {
   map.setView([data.lat, data.lon], 4);
 
   renderPassList(data.passes, city);
+  loadCurrentlyVisible(city);
   if (window.loadInsights) window.loadInsights(city);
+}
+
+async function loadCurrentlyVisible(city) {
+  const res = await fetch(`/api/currently-visible?city=${encodeURIComponent(city)}`);
+  const data = await res.json();
+  const list = document.getElementById("visible-now-list");
+
+  if (!data.satellites.length) {
+    list.innerHTML = "<li>No tracked satellites are above the horizon right now.</li>";
+    return;
+  }
+
+  list.innerHTML = data.satellites
+    .map((s) => {
+      const visibilityNote = s.visible ? "visible to the eye" : "above horizon, but in daylight/shadow";
+      return `<li>
+        <div class="sat-name">${s.name}</div>
+        <div class="orbit-tag">${s.orbit_type}</div>
+        <div>Elevation: ${s.elevation_deg}&deg; &middot; Azimuth: ${s.azimuth_deg}&deg;</div>
+        <div>${visibilityNote}</div>
+      </li>`;
+    })
+    .join("");
 }
 
 function renderPassList(passes, city) {

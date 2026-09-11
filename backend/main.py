@@ -8,7 +8,7 @@ from fastapi.staticfiles import StaticFiles
 
 from cities import get_city_coords, list_cities
 from db import get_all_tles, init_db
-from propagate import get_live_positions, get_passes, get_track
+from propagate import get_currently_visible, get_live_positions, get_passes, get_track
 from tle_fetch import refresh_curated_satellites
 
 logger = logging.getLogger("satellite_app")
@@ -89,17 +89,32 @@ def api_insights(city: str = Query(...), hours: float = Query(48, ge=1, le=168))
 
     orbit_counts = Counter(p["orbit_type"] for p in passes)
     avg_duration = round(sum(p["duration_seconds"] for p in passes) / total, 1) if total else 0
-    top_satellites = Counter(p["name"] for p in passes).most_common(5)
+
+    # "Most frequently visible" means actually visible (above horizon AND
+    # sunlit), not just geometrically above the horizon - a satellite that
+    # passes over at noon every day isn't something anyone would ever see.
+    visible_passes = [p for p in passes if p["visible"]]
+    top_satellites = Counter(p["name"] for p in visible_passes).most_common(5)
 
     return {
         "city": city,
         "window_hours": hours,
         "total_passes": total,
+        "visible_passes": len(visible_passes),
         "passes_per_day": passes_per_day,
         "orbit_type_distribution": dict(orbit_counts),
         "average_duration_seconds": avg_duration,
         "top_satellites": [{"name": n, "passes": c} for n, c in top_satellites],
     }
+
+
+@app.get("/api/currently-visible")
+def api_currently_visible(city: str = Query(...)):
+    coords = get_city_coords(city)
+    if not coords:
+        raise HTTPException(status_code=404, detail=f"Unknown city '{city}'. See /api/cities.")
+    lat, lon = coords
+    return {"city": city, "satellites": get_currently_visible(lat, lon)}
 
 
 @app.get("/api/live-positions")

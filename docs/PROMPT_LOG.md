@@ -94,3 +94,51 @@ satellite tracking) next, rather than polishing existing features first.
 This log was rewritten to reflect that: entries above now carry the actual
 prompts (lightly cleaned up for grammar) rather than a third-person paraphrase
 of what happened during each session.
+
+## Session 6 — Data Processing / Data Analysis Cross-Check (2026-09-11)
+
+**Prompt:**
+> Now let's cross check data processing and data analysis so that if we have
+> missed anything we can add it.
+>
+> [Pasted the assignment's "Data Processing" bullet list: parsing TLE data,
+> converting orbital parameters into positions, filtering satellites visible
+> from a location, calculating pass start time/peak altitude/duration,
+> preparing data structures for mapping and visualization.]
+>
+> Give a summary for each and every point that whether we have included it or
+> not and also make the local host active.
+
+Cross-checked each point against the actual code. All five were already
+covered, with one real gap closed: the pass data only reported peak elevation
+*angle*, not the satellite's physical orbital altitude in km, which the
+assignment's feature list separately asks for. Added `peak_altitude_km`.
+
+**Prompt:**
+> Yes! Please cross check the same for data analysis and next thing I guess
+> the dashboard still gets to be updated even though if I have the city of
+> Bengaluru and click on find pass I'm not getting the data anything. Check if
+> you have to make anything active and currently the list of cities that are
+> showing are very few — so can we include few more cities like Visakhapatnam,
+> Pune, etc?
+
+Investigated the Bengaluru bug: a genuine 500 error, but self-inflicted during
+the previous session (the running server's SQLite file was deleted for
+cleanup while the server was still using it, leaving the database without its
+table). Fixed the immediate issue with a clean restart, then hardened the
+underlying fragility - the schema is now recreated idempotently on every
+connection instead of once at startup, so the app can't be left in that
+broken state again.
+
+The requested cities (Visakhapatnam, Pune) were already in the list - the
+"very few cities" report was most likely the page having loaded during that
+same server-restart window. Expanded the curated city list from 15 to 31
+regardless, since more variety is a clear win for the demo either way.
+
+Cross-checking Data Analysis against the code surfaced two real gaps: no
+endpoint answered "which satellites are currently visible" (only future pass
+predictions existed), and "most frequently visible" was counting all
+geometric passes rather than only the ones actually flagged visible (sunlit).
+Added a `/api/currently-visible` endpoint and a "Visible Right Now" panel,
+and changed the most-frequent-satellites calculation to count only visible
+passes.

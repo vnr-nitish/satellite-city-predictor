@@ -105,6 +105,42 @@ def _iso_to_dt(iso_str):
     return datetime.fromisoformat(iso_str.replace("Z", "+00:00"))
 
 
+def get_currently_visible(city_lat: float, city_lon: float, min_elevation_deg: float = 10):
+    """Which satellites are visible right now from a city - distinct from
+    get_passes(), which predicts future pass windows. This answers "what's
+    up in the sky at this exact moment", combining geometric visibility
+    (above the horizon) with the sunlit check (so a satellite technically
+    above the horizon at noon, which nobody could actually see, is flagged
+    accordingly rather than reported as visible)."""
+    observer = wgs84.latlon(city_lat, city_lon)
+    now = _ts.now()
+
+    results = []
+    for row in get_all_tles():
+        sat = _build_satellite(row)
+        try:
+            alt, az, distance = (sat - observer).at(now).altaz()
+        except Exception:
+            continue
+        if alt.degrees < min_elevation_deg:
+            continue
+        sunlit = _is_sunlit(sat, now)
+        results.append(
+            {
+                "norad_id": row["norad_id"],
+                "name": row["name"],
+                "orbit_type": row["orbit_type"],
+                "elevation_deg": round(alt.degrees, 1),
+                "azimuth_deg": round(az.degrees, 1),
+                "distance_km": round(distance.km, 1),
+                "visible": True if sunlit is None else sunlit,
+            }
+        )
+
+    results.sort(key=lambda r: -r["elevation_deg"])
+    return results
+
+
 def get_live_positions():
     """Current lat/lon/altitude for every curated satellite, computed locally
     from cached TLEs - no external API call, so this is cheap enough to poll
