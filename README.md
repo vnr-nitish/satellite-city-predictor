@@ -142,6 +142,52 @@ uvicorn main:app --reload
 
 Then open http://127.0.0.1:8000 in a browser.
 
+## Deploying to Vercel
+
+Vercel's Python functions are serverless: each request may run on a fresh,
+ephemeral instance with no persistent local filesystem and no guarantee that
+background work continues after a response is sent. Three parts of this app
+originally assumed a normal long-running process, and needed to change to
+deploy here:
+
+| Was | Now | Why |
+|---|---|---|
+| SQLite file cache (`backend/satellites.db`) | In-memory dict (`backend/db.py`) | A "persistent" file isn't reliably persistent across serverless invocations, and isn't shared across instances anyway. |
+| Background thread refreshing TLEs on startup | Synchronous "refresh if stale" check at the top of each data endpoint (`ensure_fresh()` in `main.py`) | Serverless functions aren't guaranteed to keep running in the background after the response is sent. |
+| Ephemeris file (`de421.bsp`) auto-downloaded to the current working directory on first use | Committed to the repo (`backend/de421.bsp`, ~16MB) and loaded by an explicit path | The deployment filesystem is read-only outside `/tmp`, so a runtime download-and-cache-to-CWD pattern doesn't work there. |
+
+Celestrak's 5 category feeds are also now fetched **concurrently** rather than
+sequentially (`tle_fetch.py`), so a cold instance's first request pays for the
+slowest single group's response time rather than the sum of all five -
+roughly 1-2 seconds in testing, versus what could be many times that
+sequentially if Celestrak is slow (which it has been, repeatedly, during this
+project's development).
+
+**Trade-off to know about:** on Vercel, the in-memory cache only lives as long
+as a given instance stays warm. Under real traffic this means Celestrak gets
+queried more often than the old 6-hour local cache would have. If that proves
+too chatty against Celestrak's free API in practice, the fix isn't more
+serverless workarounds - it's deploying this same code, unchanged, to a
+platform that keeps one process running (Render, Railway, Fly.io), where the
+original SQLite-file-plus-background-thread design (or this same in-memory
+one) works exactly as it does locally.
+
+### Deploy commands
+
+```bash
+npm install -g vercel   # if not already installed
+vercel login
+vercel                  # deploys a preview
+vercel --prod           # deploys to production
+```
+
+Run these from the project root (where `vercel.json` lives). The first `vercel`
+run will ask a few setup questions (link to a new or existing project); accept
+the defaults unless you have a reason not to. No manual build command is
+needed - `vercel.json` tells Vercel to build `api/index.py` as a Python
+function (bundling `backend/` alongside it) and serve `frontend/` as static
+files.
+
 ## Status
 
 Initial working slice: TLE ingestion, pass prediction, map animation, and insights

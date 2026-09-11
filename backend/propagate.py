@@ -19,26 +19,35 @@ project is meant to surface.
 """
 
 from datetime import timedelta
+from pathlib import Path
 
-from skyfield.api import EarthSatellite, load, wgs84
+from skyfield.api import EarthSatellite, Loader, load, wgs84
 
 from db import get_all_tles, get_tle
 
 _ts = load.timescale()
+
+# Bound to this module's own directory (not the process's CWD) and pointed at
+# a file already committed to the repo. This matters on read-only deployment
+# filesystems (e.g. Vercel's serverless functions): Skyfield's default Loader
+# writes to and downloads from the current working directory, which may not
+# exist or be writable there - loading a bundled file by explicit path avoids
+# both the write attempt and the network round-trip entirely.
+_loader = Loader(str(Path(__file__).parent))
 
 _eph = None
 _eph_load_failed = False
 
 
 def _get_ephemeris():
-    """Lazily download/load the JPL ephemeris (~17MB) used for the sunlit
-    check, only on first use - so importing this module or starting the
-    server never blocks on that download."""
+    """Lazily load the JPL ephemeris (~17MB) used for the sunlit check, only
+    on first use - so importing this module or starting the server never
+    blocks on it."""
     global _eph, _eph_load_failed
     if _eph is not None or _eph_load_failed:
         return _eph
     try:
-        _eph = load("de421.bsp")
+        _eph = _loader("de421.bsp")
     except Exception:
         _eph_load_failed = True
     return _eph

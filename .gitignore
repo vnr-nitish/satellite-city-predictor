@@ -5,6 +5,7 @@ venv/
 env/
 *.db
 *.bsp
+!backend/de421.bsp
 *.log
 .env
 .DS_Store

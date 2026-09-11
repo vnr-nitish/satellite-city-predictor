@@ -1,5 +1,4 @@
 import logging
-import threading
 from collections import Counter
 from pathlib import Path
 
@@ -7,7 +6,7 @@ from fastapi import FastAPI, HTTPException, Query
 from fastapi.staticfiles import StaticFiles
 
 from cities import get_city_coords, list_cities
-from db import get_all_tles, init_db
+from db import get_all_tles
 from propagate import get_currently_visible, get_live_positions, get_passes, get_track
 from tle_fetch import refresh_curated_satellites
 
@@ -18,26 +17,21 @@ app = FastAPI(title="Satellites Over My City Predictor")
 FRONTEND_DIR = Path(__file__).parent.parent / "frontend"
 
 
-def _refresh_in_background():
+def ensure_fresh():
+    """Refresh the satellite cache if it's stale or empty, otherwise a cheap
+    no-op. Called at the top of every data-serving endpoint rather than once
+    at startup - a serverless deployment has no reliable "keep running in the
+    background after the response is sent" guarantee, so a lazy, on-demand
+    refresh is the pattern that works the same whether this process lives for
+    milliseconds (one Vercel invocation) or weeks (a normal host)."""
     result = refresh_curated_satellites()
     for error in result.get("errors", []):
         logger.warning("TLE refresh error: %s", error)
     if not get_all_tles():
         logger.warning(
-            "Satellite cache is empty after startup refresh - Celestrak may be "
+            "Satellite cache is empty after a refresh attempt - Celestrak may be "
             "temporarily unavailable. POST /api/refresh to retry."
         )
-
-
-@app.on_event("startup")
-def startup():
-    init_db()
-    # Celestrak can be slow or briefly unavailable; fetching it here
-    # synchronously would block the whole server (even /api/cities) from
-    # responding until every group finishes. Do it in the background instead
-    # so the app is immediately reachable, with an empty satellite list until
-    # the first refresh completes.
-    threading.Thread(target=_refresh_in_background, daemon=True).start()
 
 
 @app.get("/api/cities")
@@ -47,6 +41,7 @@ def api_cities():
 
 @app.get("/api/satellites")
 def api_satellites():
+    ensure_fresh()
     return {"satellites": get_all_tles()}
 
 
@@ -55,6 +50,7 @@ def api_passes(city: str = Query(...), hours: float = Query(48, ge=1, le=168)):
     coords = get_city_coords(city)
     if not coords:
         raise HTTPException(status_code=404, detail=f"Unknown city '{city}'. See /api/cities.")
+    ensure_fresh()
     lat, lon = coords
     return {
         "city": city,
@@ -72,6 +68,7 @@ def api_track(
     end: str = Query(...),
     step_seconds: int = Query(15, ge=1, le=300),
 ):
+    ensure_fresh()
     return {"norad_id": norad_id, "points": get_track(norad_id, start, end, step_seconds)}
 
 
@@ -80,6 +77,7 @@ def api_insights(city: str = Query(...), hours: float = Query(48, ge=1, le=168))
     coords = get_city_coords(city)
     if not coords:
         raise HTTPException(status_code=404, detail=f"Unknown city '{city}'. See /api/cities.")
+    ensure_fresh()
     lat, lon = coords
     passes = get_passes(lat, lon, hours)
 
@@ -124,12 +122,14 @@ def api_currently_visible(city: str = Query(...)):
     coords = get_city_coords(city)
     if not coords:
         raise HTTPException(status_code=404, detail=f"Unknown city '{city}'. See /api/cities.")
+    ensure_fresh()
     lat, lon = coords
     return {"city": city, "satellites": get_currently_visible(lat, lon)}
 
 
 @app.get("/api/live-positions")
 def api_live_positions():
+    ensure_fresh()
     return {"positions": get_live_positions()}
 
 
@@ -138,4 +138,8 @@ def api_refresh():
     return refresh_curated_satellites(force=True)
 
 
-app.mount("/", StaticFiles(directory=str(FRONTEND_DIR), html=True), name="frontend")
+# On Vercel, the frontend is deployed and served separately as static output
+# (see vercel.json) - this directory won't exist inside the Python function's
+# bundle, so mounting it unconditionally would crash the app at import time.
+if FRONTEND_DIR.exists():
+    app.mount("/", StaticFiles(directory=str(FRONTEND_DIR), html=True), name="frontend")

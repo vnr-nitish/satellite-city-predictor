@@ -1,74 +1,55 @@
-import sqlite3
+"""
+In-memory TLE cache.
+
+This used to be a SQLite file on disk. That worked for a normal long-running
+local server, but breaks on serverless platforms like Vercel, where each
+function instance gets an ephemeral filesystem that isn't guaranteed to
+persist between invocations - a "persistent" cache file there is neither
+persistent nor safely shared across instances. Since the curated satellite
+list is small (a few dozen rows) and cheap to refetch, a plain in-memory
+cache is simpler, has no file to accidentally delete out from under a
+running process (which happened twice during local development), and works
+identically on a long-running host or a serverless one.
+
+The trade-off: on serverless, this cache only survives for the lifetime of
+a warm instance, so a cold start pays the cost of one Celestrak refresh. On a
+normal host (local dev, Render, Railway, etc.) it behaves like before, just
+reset on process restart instead of surviving one.
+"""
+
 from datetime import datetime, timezone
-from pathlib import Path
+from typing import Dict, Optional
 
-DB_PATH = Path(__file__).parent / "satellites.db"
-
-
-def get_connection():
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
-    # Idempotent and cheap, so it's safe to run on every connection rather
-    # than only once at startup - if the database file is ever deleted,
-    # replaced, or created fresh out from under a running process, the app
-    # recreates its schema instead of every query 500ing on "no such table".
-    conn.execute(
-        """
-        CREATE TABLE IF NOT EXISTS tle_cache (
-            norad_id INTEGER PRIMARY KEY,
-            name TEXT NOT NULL,
-            orbit_type TEXT NOT NULL,
-            line1 TEXT NOT NULL,
-            line2 TEXT NOT NULL,
-            fetched_at TEXT NOT NULL
-        )
-        """
-    )
-    return conn
+_tle_cache: Dict[int, dict] = {}
+_last_refreshed_at: Optional[datetime] = None
 
 
 def init_db():
-    get_connection().close()
+    pass  # kept for compatibility with existing call sites; nothing to set up
 
 
 def upsert_tle(norad_id: int, name: str, orbit_type: str, line1: str, line2: str):
-    conn = get_connection()
-    conn.execute(
-        """
-        INSERT INTO tle_cache (norad_id, name, orbit_type, line1, line2, fetched_at)
-        VALUES (?, ?, ?, ?, ?, ?)
-        ON CONFLICT(norad_id) DO UPDATE SET
-            name=excluded.name,
-            orbit_type=excluded.orbit_type,
-            line1=excluded.line1,
-            line2=excluded.line2,
-            fetched_at=excluded.fetched_at
-        """,
-        (norad_id, name, orbit_type, line1, line2, datetime.now(timezone.utc).isoformat()),
-    )
-    conn.commit()
-    conn.close()
+    global _last_refreshed_at
+    _last_refreshed_at = datetime.now(timezone.utc)
+    _tle_cache[norad_id] = {
+        "norad_id": norad_id,
+        "name": name,
+        "orbit_type": orbit_type,
+        "line1": line1,
+        "line2": line2,
+        "fetched_at": _last_refreshed_at.isoformat(),
+    }
 
 
 def get_all_tles():
-    conn = get_connection()
-    rows = conn.execute("SELECT * FROM tle_cache ORDER BY name").fetchall()
-    conn.close()
-    return [dict(row) for row in rows]
+    return sorted(_tle_cache.values(), key=lambda row: row["name"])
 
 
 def get_tle(norad_id: int):
-    conn = get_connection()
-    row = conn.execute("SELECT * FROM tle_cache WHERE norad_id = ?", (norad_id,)).fetchone()
-    conn.close()
-    return dict(row) if row else None
+    return _tle_cache.get(norad_id)
 
 
 def cache_age_hours() -> float:
-    conn = get_connection()
-    row = conn.execute("SELECT MIN(fetched_at) AS oldest FROM tle_cache").fetchone()
-    conn.close()
-    if not row or not row["oldest"]:
+    if _last_refreshed_at is None:
         return float("inf")
-    oldest = datetime.fromisoformat(row["oldest"])
-    return (datetime.now(timezone.utc) - oldest).total_seconds() / 3600
+    return (datetime.now(timezone.utc) - _last_refreshed_at).total_seconds() / 3600

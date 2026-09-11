@@ -305,3 +305,51 @@ overrides the browser's default handling of the `hidden` attribute - so
 setting `.hidden = true` in JavaScript had no visible effect. Fixed with an
 explicit `[hidden] { display: none }` override, verified the indicator now
 actually disappears when clicking Stop.
+
+## Session 9 — Vercel Deployment (2026-09-11)
+
+**Prompt:**
+> OK as the next steps I wanted to deploy this in Vercel. So make it
+> deployment ready and give me the build commands that I need to use for
+> deploying. If I get any errors while deploying I'll let you know.
+
+Vercel's Python functions are serverless - stateless, ephemeral filesystem,
+no guarantee of continued execution after a response is sent - which
+conflicted with three real assumptions baked into the app: a persistent
+SQLite cache file, a background thread refreshing it on startup, and an
+ephemeris file auto-downloaded to the working directory on first use. Rather
+than bolt on Vercel-specific special cases, made the underlying design work
+correctly everywhere:
+
+- Replaced the SQLite file cache with a plain in-memory dict
+  (`backend/db.py`) - simpler, and removes the entire class of "someone
+  deleted the db file out from under the running server" bugs hit twice
+  earlier in this project, since there's no longer a file to delete.
+- Replaced the startup background thread with a lazy `ensure_fresh()` check
+  at the top of each data endpoint, refreshing only when the cache is stale.
+- Made Celestrak's 5 group fetches run concurrently instead of sequentially,
+  cutting a cold cache's worst-case wait from "sum of all 5 groups" to
+  "slowest single group" - measured at ~1.2s locally versus what could have
+  been far longer sequentially given Celestrak's flakiness earlier in this
+  project.
+- Committed the ephemeris file (`backend/de421.bsp`, ~16MB) to the repo and
+  loaded it by explicit path instead of relying on a runtime download to a
+  writable current directory, which a deployment filesystem doesn't
+  guarantee.
+- Defensively replaced newer Python syntax (`dict[int, dict]`, `datetime |
+  None`) with `typing.Dict`/`typing.Optional` in the new cache code, in case
+  Vercel's default Python runtime is older than what's used locally.
+
+Added `api/index.py` (a thin shim making `backend/` importable, since
+Vercel's convention expects the function under `/api`) and `vercel.json`
+(routes `/api/*` to the Python function, everything else to `frontend/` as
+static files). Verified the whole chain locally by running the app through
+the actual Vercel entrypoint path (`uvicorn api.index:app` from the repo
+root, not `backend/`) rather than only testing the already-working local
+dev path, and confirmed the ephemeris file and satellite data both resolve
+correctly through it. Flagged one real trade-off in the README: the
+in-memory cache only survives as long as a Vercel instance stays warm, so
+production traffic will hit Celestrak more often than the old 6-hour local
+cache did - documented, with a persistent host as the fallback if that
+proves too chatty in practice, rather than adding more serverless-specific
+workarounds.

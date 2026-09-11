@@ -12,7 +12,14 @@ parameters (mean motion, eccentricity), not from which Celestrak group it came
 from - a Celestrak "category" like "science" mixes true low-orbit satellites
 (e.g. Hubble) with highly elliptical ones (e.g. Chandra X-ray Observatory),
 so the group name alone isn't a reliable orbit-type label.
+
+Groups are fetched concurrently, not sequentially - on a serverless deployment
+(Vercel), a cold request pays for this refresh synchronously, so the
+worst-case wait is the slowest single group's timeout rather than the sum of
+all of them.
 """
+
+from concurrent.futures import ThreadPoolExecutor
 
 import requests
 
@@ -20,6 +27,7 @@ from db import upsert_tle, cache_age_hours
 
 CELESTRAK_URL = "https://celestrak.org/NORAD/elements/gp.php"
 REQUEST_HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; satellite-city-predictor/1.0)"}
+REQUEST_TIMEOUT_SECONDS = 10
 
 # Celestrak group name -> how many satellites to keep from it.
 # Picking from several categories just gives orbit-type variety for the
@@ -44,7 +52,7 @@ def _fetch_group_tle_text(group: str) -> str:
         CELESTRAK_URL,
         params={"GROUP": group, "FORMAT": "tle"},
         headers=REQUEST_HEADERS,
-        timeout=30,
+        timeout=REQUEST_TIMEOUT_SECONDS,
     )
     resp.raise_for_status()
     if resp.text.startswith("Invalid query") or resp.text.startswith("No GP data found"):
@@ -78,22 +86,29 @@ def _classify_orbit(line2: str) -> str:
     return "MEO"
 
 
+def _fetch_and_store_group(group: str, limit: int):
+    text = _fetch_group_tle_text(group)
+    count = 0
+    for norad_id, name, line1, line2 in _parse_tle_blocks(text)[:limit]:
+        orbit_type = _classify_orbit(line2)
+        upsert_tle(norad_id, name, orbit_type, line1, line2)
+        count += 1
+    return count
+
+
 def refresh_curated_satellites(force: bool = False):
     if not force and cache_age_hours() < REFRESH_INTERVAL_HOURS:
         return {"refreshed": False, "reason": "cache still fresh"}
 
     fetched = 0
     errors = []
-    for group, limit in CURATED_GROUPS.items():
-        try:
-            text = _fetch_group_tle_text(group)
-        except requests.RequestException as exc:
-            errors.append(f"{group}: {exc}")
-            continue
-
-        for norad_id, name, line1, line2 in _parse_tle_blocks(text)[:limit]:
-            orbit_type = _classify_orbit(line2)
-            upsert_tle(norad_id, name, orbit_type, line1, line2)
-            fetched += 1
+    with ThreadPoolExecutor(max_workers=len(CURATED_GROUPS)) as pool:
+        futures = {pool.submit(_fetch_and_store_group, group, limit): group for group, limit in CURATED_GROUPS.items()}
+        for future in futures:
+            group = futures[future]
+            try:
+                fetched += future.result()
+            except requests.RequestException as exc:
+                errors.append(f"{group}: {exc}")
 
     return {"refreshed": True, "satellites_fetched": fetched, "errors": errors}
