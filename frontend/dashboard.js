@@ -15,10 +15,22 @@ window.loadInsights = async function loadInsights(city) {
   renderTopSatChart(data.top_satellites);
 };
 
+function showEmpty(canvasId, isEmpty) {
+  document.getElementById(canvasId).closest(".chart-card").querySelector(".chart-empty").hidden = !isEmpty;
+  document.getElementById(canvasId).hidden = isEmpty;
+}
+
 function renderOrbitChart(distribution) {
   const ctx = document.getElementById("orbitTypeChart");
   const labels = Object.keys(distribution);
   const values = Object.values(distribution);
+
+  showEmpty("orbitTypeChart", labels.length === 0);
+  if (!labels.length) {
+    if (orbitChart) orbitChart.destroy();
+    orbitChart = null;
+    return;
+  }
 
   if (orbitChart) orbitChart.destroy();
   orbitChart = new Chart(ctx, {
@@ -36,6 +48,13 @@ function renderOrbitDurationChart(avgDurationByOrbitType) {
   const labels = Object.keys(avgDurationByOrbitType);
   const values = Object.values(avgDurationByOrbitType);
   const colors = labels.map((l) => ORBIT_COLOR[l] || "#94a3b8");
+
+  showEmpty("orbitDurationChart", labels.length === 0);
+  if (!labels.length) {
+    if (orbitDurationChart) orbitDurationChart.destroy();
+    orbitDurationChart = null;
+    return;
+  }
 
   if (orbitDurationChart) orbitDurationChart.destroy();
   orbitDurationChart = new Chart(ctx, {
@@ -65,6 +84,13 @@ function renderTopSatChart(topSatellites) {
   const ctx = document.getElementById("topSatellitesChart");
   const labels = topSatellites.map((s) => s.name);
   const values = topSatellites.map((s) => s.passes);
+
+  showEmpty("topSatellitesChart", labels.length === 0);
+  if (!labels.length) {
+    if (topSatChart) topSatChart.destroy();
+    topSatChart = null;
+    return;
+  }
 
   if (topSatChart) topSatChart.destroy();
   topSatChart = new Chart(ctx, {
