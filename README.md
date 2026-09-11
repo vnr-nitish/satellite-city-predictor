@@ -60,17 +60,17 @@ this project uses:
 Additionally, [Leaflet](https://leafletjs.com/) and [Chart.js](https://www.chartjs.org/) are loaded from the cdnjs CDN - these are code libraries, not data sources, but are listed here for completeness since they are still external network dependencies.
 
 Sources considered and intentionally **not** used, with reasoning:
-- **Space-Track.org** — same underlying catalog data as Celestrak, but requires manual
+- **Space-Track.org** - same underlying catalog data as Celestrak, but requires manual
   account approval; no benefit over Celestrak for this project.
-- **N2YO API** — provides similar pass predictions, but requires an API key and has
+- **N2YO API** - provides similar pass predictions, but requires an API key and has
   tight rate limits; Skyfield computes the same predictions locally, for any number of
   satellites, without limits.
-- **Open-Notify ISS API** — only reports the ISS's current position; our own
+- **Open-Notify ISS API** - only reports the ISS's current position; our own
   propagator already covers this (and every other tracked satellite) more generally.
-- **satellitemap.space** — no documented public API.
+- **satellitemap.space** - no documented public API.
 
 We also did not restrict ourselves to only the four sources named in the brief, per
-the assignment's "or other reliable sources" allowance — Celestrak's per-category
+the assignment's "or other reliable sources" allowance - Celestrak's per-category
 group feeds (rather than one fixed list of hardcoded satellites) is itself a broader
 and more maintainable data source, since it always reflects Celestrak's live catalog
 instead of a list of satellite IDs that could go stale or be wrong.
@@ -83,10 +83,10 @@ expensive. Instead, the app pulls a curated set from Celestrak's category feeds
 orbit types that's fast to compute and still meaningful for the analytics dashboard.
 (Celestrak's `starlink` group was tried too, but Celestrak throttles/blocks that
 specific large-catalog query far more aggressively than the smaller category feeds,
-even with a proper User-Agent header — it was dropped as an unreliable dependency
+even with a proper User-Agent header - it was dropped as an unreliable dependency
 rather than left flaky.)
 
-Orbit type (LEO/MEO/GEO/HEO) is not trusted from the Celestrak group name — a
+Orbit type (LEO/MEO/GEO/HEO) is not trusted from the Celestrak group name - a
 category like "science" mixes true low-orbit satellites (Hubble) with highly
 elliptical ones (Chandra X-ray Observatory). Instead it's classified per-satellite
 from the TLE's own mean motion and eccentricity, which is more accurate and is
@@ -106,7 +106,7 @@ itself a small piece of real data analysis rather than a hardcoded label.
 
 ## Features
 
-**Tab 1 — Map & Passes**
+**Tab 1 - Map & Passes**
 
 - City selector *or* click anywhere on the map - both work as location input, resolved
   by the same backend endpoints (`city=` or `lat=`/`lon=` query params). A map click
@@ -141,9 +141,9 @@ itself a small piece of real data analysis rather than a hardcoded label.
   means for pass behavior), aimed at students or hobbyists who want to understand *why*
   the data looks the way it does, not just see the numbers
 
-**Tab 2 — Global Tracking**
+**Tab 2 - Global Tracking**
 
-- **Bonus feature — live global tracking**: a map showing the real-time current
+- **Bonus feature - live global tracking**: a map showing the real-time current
   position of every curated satellite worldwide, color-coded by orbit type and polling
   `/api/live-positions` every 5 seconds. This is computed entirely locally from cached
   TLEs (no external calls per refresh), so it's cheap enough to poll continuously.
@@ -152,7 +152,7 @@ itself a small piece of real data analysis rather than a hardcoded label.
 
 **Not yet built**
 
-- **Bonus feature (in progress) — visibility notifications**: notifying when a
+- **Bonus feature (in progress) - visibility notifications**: notifying when a
   satellite is about to pass over the selected location.
 
 ## Running Locally

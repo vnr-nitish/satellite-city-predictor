@@ -99,7 +99,15 @@ async function loadLocation(loc) {
 
   if (locationMarker) map.removeLayer(locationMarker);
   locationMarker = L.marker([data.lat, data.lon]).addTo(map).bindPopup(data.location);
-  map.setView([data.lat, data.lon], 4);
+  // Never zoom back out below a reasonable "city" view (8), and never zoom
+  // out below whatever the user already had - jumping from a zoomed-in view
+  // back to a wide one on every location change felt like the map was
+  // resetting itself instead of just moving to the new spot. setView (not
+  // flyTo) is deliberate: flyTo's "fly over" animation zooms out mid-flight
+  // for long-distance jumps, which would recreate the same unwanted
+  // zoomed-out moment, just as an animation instead of an instant reset.
+  const targetZoom = Math.max(map.getZoom(), 8);
+  map.setView([data.lat, data.lon], targetZoom);
 
   renderPassList(data.passes);
   loadCurrentlyVisible();
