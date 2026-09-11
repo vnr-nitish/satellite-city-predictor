@@ -163,3 +163,49 @@ field) - log-scaled specifically because the gap between orbit types spans
 orders of magnitude (verified against live data for Bengaluru: LEO averages
 ~427s, MEO ~22,662s, HEO ~41,506s), which a linear axis would flatten into an
 invisible LEO bar. Verified in a real browser that it renders correctly.
+
+**Prompt:**
+> Could you please map those according to the front end visibility so that I
+> can clearly check. And also I wanted you to mention all the data resources
+> that you have used.
+
+Produced a requirement -> exact UI element mapping table, and audited the
+codebase for every external resource actually referenced (not just what the
+README claimed). Found the README's Data Sources section was itself out of
+date - it claimed Celestrak was "the only live external dependency," which
+had stopped being true once the sunlit-visibility feature (NASA JPL's DE421
+ephemeris) and the maps (OpenStreetMap tiles) were added. Corrected it.
+
+## Session 7 — Web App Requirements Cross-Check & Layout Planning (2026-09-11)
+
+**Prompt:**
+> [Pasted the assignment's "Web Application Requirements" section: core
+> map-based visualization, features list (city input, upcoming passes list,
+> start/end/duration display, animated path, satellite details), data insights
+> dashboard, bonus feature.] These are the exact front end requirements, so we
+> have to cross check whether we have built everything or not.
+>
+> Currently you have built everything in a single page. Let's improve the
+> front end - if a single page is fine, that's fine, or if the data insights
+> should be separated into a tab, that can be done. Think about how the
+> front end can be improved and give me suggestions so I can review them and
+> approve before you code it. Make sure whether we've implemented everything,
+> and if so, name what we've called each thing in the front end so I can
+> understand. Also, the "LEO vs. Other Orbits: Avg. Pass Duration" section
+> showed nothing - check what's wrong with that.
+
+Investigated the blank-chart report and found a real bug: none of the three
+dashboard chart functions handled the case of empty pass data (which happens
+whenever the satellite cache is briefly empty, e.g. during the Celestrak
+rate-limiting hit repeatedly earlier in this project) - Chart.js silently
+rendered nothing, with no console error, which is exactly what "nothing
+shown" looks like. Verified by forcing the empty-data path directly in a
+browser test, then added a proper "no passes in this window yet" message for
+that case on all three charts.
+
+While cross-checking the Features list literally line by line, found another
+real gap: "pass start time, end time, and duration" was only showing start
+time and duration - end time (`set_time`) was already computed and used
+internally for the track animation, but never actually displayed. Added it,
+plus formatted duration as human-readable (e.g. "5h 13m") since durations now
+range from seconds to hours across orbit types.
