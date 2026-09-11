@@ -90,6 +90,16 @@ def api_insights(city: str = Query(...), hours: float = Query(48, ge=1, le=168))
     orbit_counts = Counter(p["orbit_type"] for p in passes)
     avg_duration = round(sum(p["duration_seconds"] for p in passes) / total, 1) if total else 0
 
+    # The assignment specifically asks for "differences between LEO
+    # satellites and others" - orbit_type_distribution alone only shows how
+    # many passes come from each orbit type, not how those passes actually
+    # differ. Average duration per orbit type is the concrete difference:
+    # LEO passes last minutes, MEO/HEO passes can last hours, by contrast.
+    avg_duration_by_orbit_type = {}
+    for orbit_type in orbit_counts:
+        durations = [p["duration_seconds"] for p in passes if p["orbit_type"] == orbit_type]
+        avg_duration_by_orbit_type[orbit_type] = round(sum(durations) / len(durations), 1)
+
     # "Most frequently visible" means actually visible (above horizon AND
     # sunlit), not just geometrically above the horizon - a satellite that
     # passes over at noon every day isn't something anyone would ever see.
@@ -104,6 +114,7 @@ def api_insights(city: str = Query(...), hours: float = Query(48, ge=1, le=168))
         "passes_per_day": passes_per_day,
         "orbit_type_distribution": dict(orbit_counts),
         "average_duration_seconds": avg_duration,
+        "avg_duration_by_orbit_type": avg_duration_by_orbit_type,
         "top_satellites": [{"name": n, "passes": c} for n, c in top_satellites],
     }
 

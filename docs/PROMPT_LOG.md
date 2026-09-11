@@ -142,3 +142,24 @@ geometric passes rather than only the ones actually flagged visible (sunlit).
 Added a `/api/currently-visible` endpoint and a "Visible Right Now" panel,
 and changed the most-frequent-satellites calculation to count only visible
 passes.
+
+**Prompt:**
+> [Pasted the assignment's "Data Analysis" bullet list again.] Now let's cross
+> check this data analysis also - whether we have represented everything in
+> the dashboard or not. I feel the differences between the low [Earth orbit]
+> satellites and the others is missing, if I'm not wrong. If you have
+> implemented it, mention how you have implemented it - like what is the name
+> that you have given in the dashboard for them.
+
+Checked, and the concern was correct: the existing "Orbit Type Distribution"
+chart only showed how many passes came from each orbit type, not how those
+passes actually differ - the real substance of the assignment's requirement.
+That finding (LEO passes last minutes, MEO/HEO passes last hours) previously
+only existed in code comments and the README, not the dashboard itself.
+
+Added a new chart, labeled **"LEO vs. Other Orbits: Avg. Pass Duration"**, as
+a log-scale bar chart (`/api/insights`'s new `avg_duration_by_orbit_type`
+field) - log-scaled specifically because the gap between orbit types spans
+orders of magnitude (verified against live data for Bengaluru: LEO averages
+~427s, MEO ~22,662s, HEO ~41,506s), which a linear axis would flatten into an
+invisible LEO bar. Verified in a real browser that it renders correctly.

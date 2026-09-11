@@ -1,6 +1,7 @@
-let orbitChart, topSatChart;
+let orbitChart, orbitDurationChart, topSatChart;
 
 const PALETTE = ["#38bdf8", "#f59e0b", "#a78bfa", "#34d399", "#f472b6", "#fbbf24"];
+const ORBIT_COLOR = { LEO: "#38bdf8", MEO: "#a78bfa", GEO: "#f59e0b", HEO: "#f472b6" };
 
 window.loadInsights = async function loadInsights(city) {
   const res = await fetch(`/api/insights?city=${encodeURIComponent(city)}&hours=48`);
@@ -10,6 +11,7 @@ window.loadInsights = async function loadInsights(city) {
   document.getElementById("avgDurationStat").textContent = `${data.average_duration_seconds}s`;
 
   renderOrbitChart(data.orbit_type_distribution);
+  renderOrbitDurationChart(data.avg_duration_by_orbit_type);
   renderTopSatChart(data.top_satellites);
 };
 
@@ -26,6 +28,36 @@ function renderOrbitChart(distribution) {
       datasets: [{ data: values, backgroundColor: PALETTE }],
     },
     options: { plugins: { legend: { labels: { color: "#e2e8f0" } } } },
+  });
+}
+
+function renderOrbitDurationChart(avgDurationByOrbitType) {
+  const ctx = document.getElementById("orbitDurationChart");
+  const labels = Object.keys(avgDurationByOrbitType);
+  const values = Object.values(avgDurationByOrbitType);
+  const colors = labels.map((l) => ORBIT_COLOR[l] || "#94a3b8");
+
+  if (orbitDurationChart) orbitDurationChart.destroy();
+  orbitDurationChart = new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels,
+      datasets: [{ label: "Avg duration (s)", data: values, backgroundColor: colors }],
+    },
+    options: {
+      plugins: { legend: { display: false } },
+      scales: {
+        // Log scale on purpose: LEO passes last minutes while MEO/HEO
+        // passes can last hours - a linear axis would flatten LEO's bar
+        // to invisible. The order-of-magnitude gap IS the insight.
+        y: {
+          type: "logarithmic",
+          ticks: { color: "#e2e8f0" },
+          title: { display: true, text: "seconds (log scale)", color: "#94a3b8" },
+        },
+        x: { ticks: { color: "#e2e8f0" } },
+      },
+    },
   });
 }
 

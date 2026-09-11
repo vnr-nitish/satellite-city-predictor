@@ -102,8 +102,12 @@ itself a small piece of real data analysis rather than a hardcoded label.
   actually sunlit/visible) for the selected city at this exact moment - distinct from
   the upcoming-passes list, and how GEO satellites (which rarely produce a rise/set
   event) show up at all
-- Insights dashboard: orbit-type distribution, passes/day, average pass duration, most
-  frequently *visible* satellites (sunlit, not just geometrically above the horizon)
+- Insights dashboard: orbit-type distribution, **"LEO vs. Other Orbits: Avg. Pass
+  Duration"** (a log-scale bar chart - this is the dashboard's answer to the
+  assignment's "differences between LEO satellites and others" requirement: LEO
+  passes last minutes, MEO/HEO passes can last hours, visually obvious at a glance),
+  passes/day, average pass duration, most frequently *visible* satellites (sunlit,
+  not just geometrically above the horizon)
 - **Bonus feature — live global tracking**: a second map showing the real-time current
   position of every curated satellite worldwide, color-coded by orbit type and polling
   `/api/live-positions` every 5 seconds. This is computed entirely locally from cached
