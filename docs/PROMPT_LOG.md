@@ -495,3 +495,42 @@ effect) - which would have recreated the exact complaint as an animation
 instead of an instant reset. Switched to an instant `setView` at
 `Math.max(currentZoom, 8)` instead: verified by scripting a zoom-to-12, then
 switching cities, and confirming the zoom stayed at 12 rather than dropping.
+
+Also proposed three "outstanding feature" options for the earlier "something
+extraordinary" ask, tied to the user's own idea (a notification, best
+view/place): (A) a "Best Pass Tonight" spotlight using data already
+computed, (B) browser notifications before a good pass - literally the
+assignment's own named bonus option, still unbuilt, (C) a sky-compass
+visualization of elevation/azimuth, optionally using device orientation.
+Recommended A+B as the strongest pairing, C as the flashiest but riskiest.
+
+**Prompt:**
+> Let's try to implement all the three.
+
+Built all three:
+- **Best Pass spotlight**: ranks fetched passes by peak elevation among
+  actually-visible ones, shows the best with a live 30-second-refreshing
+  countdown to rise time; clicking it animates the same as a list card.
+- **Pass notifications**: opt-in button requests browser Notification
+  permission, then schedules a `setTimeout` per qualifying pass (visible,
+  30 deg+ peak elevation) firing 5 minutes before rise - purely client-side,
+  with the status text honestly stating it only works while the tab stays
+  open rather than implying real push infrastructure that doesn't exist here.
+- **Sky view compass**: a polar SVG plot (center = zenith, edge = horizon,
+  N/E/S/W around the ring) plotting every "visible right now" satellite by
+  its actual elevation/azimuth - the same layout real satellite-tracking
+  software uses. Clicking a dot animates that satellite.
+
+Hit and fixed a real, non-obvious CSS bug while building the sky plot: an
+inline `<svg>` inside a column flex container doesn't reliably compute
+`height: auto` the way normal replaced elements do, even with explicit
+width/height attributes - its layout box collapsed to zero height (visible
+via `getBoundingClientRect`) while its child content still rendered outside
+that box, letting the list below it silently overlap and intercept clicks
+that looked, visually, like they should have hit the sky-plot dots. Diagnosed
+by comparing computed bounding boxes rather than guessing from the visual
+symptom, and fixed with the classic reliable pattern: wrap the SVG in a plain
+`<div>` that owns an explicit `aspect-ratio`, and let the SVG fill it at
+100% - plain divs don't hit the same replaced-element sizing edge case.
+Verified with a full regression pass (existing suite, mobile screenshot,
+click-to-animate from a sky-plot dot) after the fix.

@@ -36,9 +36,18 @@
           <div id="map"></div>
           <p class="map-hint">Click anywhere on the map to check passes for that exact point, or pick a city above.</p>
         </div>
+
+        <div id="best-pass-spotlight" class="spotlight-card" hidden></div>
+
+        <div class="notify-bar">
+          <button id="enable-notifications-btn" type="button">&#128276; Notify me before good passes</button>
+          <span id="notify-status" class="hint"></span>
+        </div>
+
         <div class="split-row">
-          <div class="pass-list-wrap">
+          <div class="pass-list-wrap sky-view-wrap">
             <h2>Visible Right Now</h2>
+            <div class="sky-plot-frame"><svg id="sky-plot" class="sky-plot" viewBox="0 0 200 200"></svg></div>
             <ul id="visible-now-list"></ul>
           </div>
           <div class="pass-list-wrap">
@@ -156,5 +165,6 @@
   <script src="dashboard.js"></script>
   <script src="global.js"></script>
   <script src="tabs.js"></script>
+  <script src="notifications.js"></script>
 </body>
 </html>

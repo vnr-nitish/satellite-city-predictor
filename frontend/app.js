@@ -13,6 +13,9 @@ const VISIBLE_REFRESH_MS = 30000;
 // visible arc at all; GEO doesn't meaningfully move regardless of window
 // size, since "geostationary" means fixed relative to the ground.
 const VISIBLE_WINDOW_MINUTES = { LEO: 10, MEO: 45, HEO: 45, GEO: 10 };
+const ORBIT_DOT_COLOR = { LEO: "#38bdf8", MEO: "#a78bfa", GEO: "#f59e0b", HEO: "#f472b6" };
+
+let bestPass = null; // the currently-spotlighted pass, kept for the live countdown
 
 function getLastCity() {
   try {
@@ -110,8 +113,12 @@ async function loadLocation(loc) {
   map.setView([data.lat, data.lon], targetZoom);
 
   renderPassList(data.passes);
+  renderBestPassSpotlight(data.passes);
   loadCurrentlyVisible();
   if (window.loadInsights) window.loadInsights(locationQueryString(loc));
+
+  window.currentPassesForNotify = { passes: data.passes, location: data.location };
+  if (window.scheduleNotifications) window.scheduleNotifications(data.passes, data.location);
 }
 
 function formatDuration(totalSeconds) {
@@ -164,12 +171,99 @@ function renderPassList(passes) {
   });
 }
 
+// Highlights the single best upcoming viewing opportunity - the visible
+// (sunlit, not just geometrically above the horizon) pass with the highest
+// peak elevation - with a live countdown, so the answer to "what's actually
+// worth going outside for" doesn't require reading the whole pass list.
+function renderBestPassSpotlight(passes) {
+  const card = document.getElementById("best-pass-spotlight");
+  const candidates = passes.filter((p) => p.visible);
+
+  if (!candidates.length) {
+    bestPass = null;
+    card.hidden = true;
+    return;
+  }
+
+  bestPass = candidates.reduce((best, p) => (p.peak_elevation_deg > best.peak_elevation_deg ? p : best));
+  card.hidden = false;
+  card.onclick = () => animatePassWindow(bestPass.norad_id, bestPass.rise_time, bestPass.set_time, bestPass.name);
+  updateSpotlightCountdown();
+}
+
+function updateSpotlightCountdown() {
+  const card = document.getElementById("best-pass-spotlight");
+  if (!bestPass || card.hidden) return;
+
+  const riseTime = new Date(bestPass.rise_time);
+  const peakTime = new Date(bestPass.peak_time);
+  const msUntilRise = riseTime - new Date();
+
+  const countdownText = msUntilRise <= 0
+    ? "Happening now"
+    : `Rises in ${formatDuration(Math.round(msUntilRise / 1000))}`;
+
+  card.innerHTML = `
+    <div class="spotlight-label">&#11088; Best Pass to Watch</div>
+    <div class="spotlight-name">${bestPass.name}</div>
+    <div class="spotlight-detail">${bestPass.orbit_type} &middot; peaks at ${peakTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+      at ${bestPass.peak_elevation_deg}&deg; elevation &middot; ${formatDuration(bestPass.duration_seconds)} long</div>
+    <div class="spotlight-countdown">${countdownText}</div>
+  `;
+}
+
+setInterval(updateSpotlightCountdown, 30000);
+
+// A polar sky-plot: center is straight overhead (zenith, 90 deg elevation),
+// the outer ring is the horizon (0 deg), and compass direction runs around
+// the circle - the same layout real satellite-tracking software uses, so
+// "elevation 62, azimuth 226" becomes a glance instead of two numbers to
+// mentally convert into "where do I actually look".
+function renderSkyPlot(satellites) {
+  const svg = document.getElementById("sky-plot");
+  const rings = [0, 30, 60].map((elevation) => {
+    const r = 90 - elevation;
+    return `<circle class="ring" cx="100" cy="100" r="${r}"></circle>`;
+  }).join("");
+  const labels = `
+    <text class="compass-label" x="100" y="10">N</text>
+    <text class="compass-label" x="192" y="103">E</text>
+    <text class="compass-label" x="100" y="197">S</text>
+    <text class="compass-label" x="8" y="103">W</text>
+  `;
+
+  const dots = satellites.map((s) => {
+    const r = 90 - s.elevation_deg;
+    const azRad = (s.azimuth_deg * Math.PI) / 180;
+    const x = 100 + r * Math.sin(azRad);
+    const y = 100 - r * Math.cos(azRad);
+    const color = ORBIT_DOT_COLOR[s.orbit_type] || "#94a3b8";
+    return `<circle class="sky-dot" data-norad="${s.norad_id}" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="5" fill="${color}"><title>${s.name} (${s.orbit_type})</title></circle>`;
+  }).join("");
+
+  svg.innerHTML = `${rings}${labels}${dots}`;
+
+  svg.querySelectorAll(".sky-dot").forEach((dot) => {
+    dot.addEventListener("click", () => {
+      const sat = satellites.find((s) => String(s.norad_id) === dot.dataset.norad);
+      if (!sat) return;
+      const windowMinutes = VISIBLE_WINDOW_MINUTES[sat.orbit_type] || 10;
+      const now = new Date();
+      const start = new Date(now.getTime() - windowMinutes * 60000).toISOString();
+      const end = new Date(now.getTime() + windowMinutes * 60000).toISOString();
+      animatePassWindow(sat.norad_id, start, end, sat.name);
+    });
+  });
+}
+
 async function loadCurrentlyVisible() {
   if (!currentLocation) return;
   const res = await fetch(`/api/currently-visible?${locationQueryString(currentLocation)}`);
   if (!res.ok) return;
   const data = await res.json();
   const list = document.getElementById("visible-now-list");
+
+  renderSkyPlot(data.satellites);
 
   if (!data.satellites.length) {
     list.innerHTML = "<li>No tracked satellites are above the horizon right now.</li>";

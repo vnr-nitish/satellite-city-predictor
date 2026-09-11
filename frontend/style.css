@@ -90,6 +90,38 @@ section > h2, .global-header h2 { font-size: 1.05rem; margin: 0 0 14px 0; font-w
 .map-card { border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
 .map-card-full { width: 100%; }
 #map { height: 440px; }
+
+/* ---------- Best pass spotlight ---------- */
+.spotlight-card[hidden] { display: none; }
+.spotlight-card {
+  background: linear-gradient(135deg, rgba(56,189,248,0.12), rgba(167,139,250,0.10));
+  border: 1px solid var(--leo);
+  border-radius: 10px;
+  padding: 16px 18px;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.spotlight-card:hover { border-color: var(--meo); }
+.spotlight-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--leo); font-weight: 700; margin-bottom: 6px; }
+.spotlight-name { font-size: 1.15rem; font-weight: 800; }
+.spotlight-detail { font-size: 0.85rem; color: var(--text-dim); margin-top: 4px; }
+.spotlight-countdown { font-size: 1.4rem; font-weight: 800; color: var(--leo); margin-top: 8px; }
+
+/* ---------- Notifications ---------- */
+.notify-bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.notify-bar button { background: var(--panel-alt); border: 1px solid var(--border); }
+.notify-bar button:hover { background: var(--panel-hover); }
+.notify-bar button.active { background: rgba(56,189,248,0.15); border-color: var(--leo); color: var(--leo); }
+
+/* ---------- Sky view plot ---------- */
+.sky-view-wrap { display: flex; flex-direction: column; }
+.sky-plot-frame { width: 100%; max-width: 220px; aspect-ratio: 1 / 1; margin: 4px auto 12px auto; }
+.sky-plot { width: 100%; height: 100%; display: block; }
+.sky-plot .ring { fill: none; stroke: var(--border); stroke-width: 1; }
+.sky-plot .compass-label { fill: var(--text-faint); font-size: 9px; text-anchor: middle; }
+.sky-plot .sky-dot { cursor: pointer; stroke: var(--bg); stroke-width: 1.5; }
+.sky-plot .sky-dot:hover { stroke: var(--text); }
+.sky-plot .sky-dot-label { fill: var(--text-dim); font-size: 7px; text-anchor: middle; pointer-events: none; }
 .map-hint { margin: 0; padding: 8px 14px; font-size: 0.78rem; color: var(--text-faint); background: var(--panel-alt); border-top: 1px solid var(--border); }
 
 .animating-indicator[hidden] { display: none; }
