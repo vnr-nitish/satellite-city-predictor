@@ -37,9 +37,12 @@ function renderOrbitChart(distribution) {
     type: "doughnut",
     data: {
       labels,
-      datasets: [{ data: values, backgroundColor: PALETTE }],
+      datasets: [{ data: values, backgroundColor: PALETTE, borderColor: "#111827" }],
     },
-    options: { plugins: { legend: { labels: { color: "#e2e8f0" } } } },
+    options: {
+      maintainAspectRatio: false,
+      plugins: { legend: { position: "bottom", labels: { color: "#e2e8f0", boxWidth: 12, padding: 12 } } },
+    },
   });
 }
 
@@ -64,6 +67,7 @@ function renderOrbitDurationChart(avgDurationByOrbitType) {
       datasets: [{ label: "Avg duration (s)", data: values, backgroundColor: colors }],
     },
     options: {
+      maintainAspectRatio: false,
       plugins: { legend: { display: false } },
       scales: {
         // Log scale on purpose: LEO passes last minutes while MEO/HEO
@@ -71,10 +75,12 @@ function renderOrbitDurationChart(avgDurationByOrbitType) {
         // to invisible. The order-of-magnitude gap IS the insight.
         y: {
           type: "logarithmic",
+          min: 10,
           ticks: { color: "#e2e8f0" },
+          grid: { color: "#1e293b" },
           title: { display: true, text: "seconds (log scale)", color: "#94a3b8" },
         },
-        x: { ticks: { color: "#e2e8f0" } },
+        x: { ticks: { color: "#e2e8f0" }, grid: { display: false } },
       },
     },
   });
@@ -97,14 +103,15 @@ function renderTopSatChart(topSatellites) {
     type: "bar",
     data: {
       labels,
-      datasets: [{ label: "Passes", data: values, backgroundColor: PALETTE[0] }],
+      datasets: [{ label: "Passes", data: values, backgroundColor: "#38bdf8", borderRadius: 4 }],
     },
     options: {
+      maintainAspectRatio: false,
       indexAxis: "y",
       plugins: { legend: { display: false } },
       scales: {
-        x: { ticks: { color: "#e2e8f0" } },
-        y: { ticks: { color: "#e2e8f0" } },
+        x: { ticks: { color: "#e2e8f0", precision: 0 }, grid: { color: "#1e293b" } },
+        y: { ticks: { color: "#e2e8f0" }, grid: { display: false } },
       },
     },
   });

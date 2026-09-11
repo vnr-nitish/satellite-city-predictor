@@ -209,3 +209,42 @@ time and duration - end time (`set_time`) was already computed and used
 internally for the track animation, but never actually displayed. Added it,
 plus formatted duration as human-readable (e.g. "5h 13m") since durations now
 range from seconds to hours across orbit types.
+
+**Prompt:**
+> The animated orbital paths are for the upcoming passes - if I click, yes I'm
+> getting it. For "visible right now" also it would be better if you could
+> enable that feature. After the peak elevation, let the altitude come on the
+> next line - we're projecting start, end, peak elevation, altitude, and
+> duration, so that would look better - and give the same layout for "visible
+> right now" so it looks aligned. The "LEO vs. other orbits" section is still
+> blank - try once more, otherwise we can remove that feature. Keep the
+> visibility notifications in progress, let's see what we can do with that.
+> Rather than tabs, the header-navigation suggestion you gave is fine - let's
+> go with that on a single page, but make the UI good - the cards, elements,
+> positions, etc. are currently very basic. Also make the live tracking
+> satellite map more interactive and responsive.
+
+Made "visible right now" satellites clickable too - since they have no
+rise/set window (they're already overhead), it animates a short ground-track
+segment centered on the current moment instead, long enough to show LEO
+satellites visibly moving and correctly showing GEO/MEO barely moving at all.
+Reordered every satellite card (both lists) to a shared template: name,
+orbit-type tag, start, end, peak elevation, altitude (own line), duration.
+
+Investigated the still-blank chart further: added `maintainAspectRatio:
+false` with explicit canvas heights (Chart.js canvases inside CSS grid
+columns can end up with an unstable size on first paint) and an explicit log
+scale minimum, then stress-tested by switching cities four times in a row in
+a real browser - the chart rendered correctly every time afterward. Root
+cause most likely was the empty-cache window from Session 6, now already
+covered by the "no data" message; kept the feature rather than removing it,
+since it directly demonstrates the assignment's required LEO/others
+distinction and renders reliably under testing.
+
+Did a full visual pass: sticky header with Map & Passes / Dashboard / Global
+Tracking anchor links, consistent card styling with hover/selected states,
+proper spacing and typography tokens, a clickable legend on the global map
+that toggles each orbit type's markers on/off, marker hover-to-enlarge, and
+verified responsiveness down to a 390px mobile viewport (single-column stack,
+nothing cut off). Visibility notifications remain unimplemented, flagged as a
+future item per the request to leave it "in progress."

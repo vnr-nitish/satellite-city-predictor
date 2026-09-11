@@ -101,11 +101,16 @@ itself a small piece of real data analysis rather than a hardcoded label.
 ## Features
 
 - City selector with animated satellite ground-track visualization on a map
-- List of upcoming passes (start time, peak elevation, peak altitude, duration)
+- List of upcoming passes (start time, end time, peak elevation, peak altitude,
+  duration) - clicking a pass animates its ground track on the map
 - "Visible right now" panel: which tracked satellites are above the horizon (and
   actually sunlit/visible) for the selected city at this exact moment - distinct from
   the upcoming-passes list, and how GEO satellites (which rarely produce a rise/set
-  event) show up at all
+  event) show up at all. Clicking one animates a short track centered on the current
+  moment (since there's no rise/set window to animate between for something already
+  overhead)
+- Header navigation to jump between Map & Passes / Dashboard / Global Tracking on the
+  single scrolling page
 - Insights dashboard: orbit-type distribution, **"LEO vs. Other Orbits: Avg. Pass
   Duration"** (a log-scale bar chart - this is the dashboard's answer to the
   assignment's "differences between LEO satellites and others" requirement: LEO
@@ -116,6 +121,10 @@ itself a small piece of real data analysis rather than a hardcoded label.
   position of every curated satellite worldwide, color-coded by orbit type and polling
   `/api/live-positions` every 5 seconds. This is computed entirely locally from cached
   TLEs (no external calls per refresh), so it's cheap enough to poll continuously.
+  The legend doubles as a filter - click LEO/MEO/GEO/HEO to show/hide that orbit
+  class's markers - and markers grow on hover before showing their popup on click.
+- **Bonus feature (in progress) — visibility notifications**: notifying when a
+  satellite is about to pass over the selected city. Not yet implemented.
 
 ## Running Locally
 

@@ -8,7 +8,15 @@
 </head>
 <body>
   <header>
-    <h1>Satellites Over My City</h1>
+    <div class="brand">
+      <span class="brand-icon">&#128752;</span>
+      <h1>Satellites Over My City</h1>
+    </div>
+    <nav class="section-nav">
+      <a href="#map-section">Map &amp; Passes</a>
+      <a href="#dashboard-section">Dashboard</a>
+      <a href="#global-section">Global Tracking</a>
+    </nav>
     <div class="controls">
       <label for="city-select">City</label>
       <select id="city-select"></select>
@@ -17,10 +25,12 @@
   </header>
 
   <main>
-    <section class="map-panel">
-      <div id="map"></div>
+    <section id="map-section" class="map-panel">
+      <div class="map-card">
+        <div id="map"></div>
+      </div>
       <div class="pass-list-wrap">
-        <h2>Upcoming Passes (next 48h)</h2>
+        <h2>Upcoming Passes <span class="hint">(next 48h)</span></h2>
         <ul id="pass-list"></ul>
       </div>
       <div class="pass-list-wrap">
@@ -29,22 +39,22 @@
       </div>
     </section>
 
-    <section class="dashboard-panel">
+    <section id="dashboard-section" class="dashboard-panel">
       <h2>Insights Dashboard</h2>
       <div class="charts-grid">
         <div class="chart-card">
           <h3>Orbit Type Distribution</h3>
-          <canvas id="orbitTypeChart"></canvas>
+          <div class="chart-canvas-wrap"><canvas id="orbitTypeChart"></canvas></div>
           <p class="chart-empty" hidden>No passes in this window yet - satellite data may still be loading.</p>
         </div>
         <div class="chart-card">
           <h3>LEO vs. Other Orbits: Avg. Pass Duration</h3>
-          <canvas id="orbitDurationChart"></canvas>
+          <div class="chart-canvas-wrap"><canvas id="orbitDurationChart"></canvas></div>
           <p class="chart-empty" hidden>No passes in this window yet - satellite data may still be loading.</p>
         </div>
         <div class="chart-card">
           <h3>Most Frequently Visible Satellites</h3>
-          <canvas id="topSatellitesChart"></canvas>
+          <div class="chart-canvas-wrap"><canvas id="topSatellitesChart"></canvas></div>
           <p class="chart-empty" hidden>No visible passes in this window yet - satellite data may still be loading.</p>
         </div>
         <div class="chart-card stat-card">
@@ -58,20 +68,27 @@
       </div>
     </section>
 
-    <section class="global-panel">
+    <section id="global-section" class="global-panel">
       <div class="global-header">
         <h2>Live Global Tracking</h2>
         <span id="live-updated" class="live-updated"></span>
       </div>
-      <div id="globalMap"></div>
+      <div class="map-card">
+        <div id="globalMap"></div>
+      </div>
       <div class="legend">
-        <span><i class="dot leo"></i>LEO</span>
-        <span><i class="dot meo"></i>MEO</span>
-        <span><i class="dot geo"></i>GEO</span>
-        <span><i class="dot heo"></i>HEO</span>
+        <button class="legend-item" data-orbit="LEO"><i class="dot leo"></i>LEO</button>
+        <button class="legend-item" data-orbit="MEO"><i class="dot meo"></i>MEO</button>
+        <button class="legend-item" data-orbit="GEO"><i class="dot geo"></i>GEO</button>
+        <button class="legend-item" data-orbit="HEO"><i class="dot heo"></i>HEO</button>
+        <span class="legend-hint">Click to toggle &middot; click a satellite for details</span>
       </div>
     </section>
   </main>
+
+  <footer>
+    Data: Celestrak (orbital elements) &middot; NASA JPL DE421 (sunlit calculation) &middot; OpenStreetMap (map tiles)
+  </footer>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.1/chart.umd.min.js"></script>
