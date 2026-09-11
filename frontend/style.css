@@ -36,9 +36,12 @@ header {
   flex-wrap: wrap;
   position: sticky;
   top: 0;
-  z-index: 10;
+  /* Leaflet's own controls/panes use z-index up to 1000, which otherwise
+     paints over a sticky header as the map scrolls underneath it. */
+  z-index: 2000;
 }
-.brand { display: flex; align-items: center; gap: 10px; }
+.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: inherit; }
+.brand:hover { opacity: 0.85; }
 .brand-icon { font-size: 1.4rem; }
 header h1 { margin: 0; font-size: 1.15rem; font-weight: 700; letter-spacing: -0.01em; }
 
@@ -270,9 +273,17 @@ footer {
   border-top: 1px solid var(--border);
 }
 
+/* Between ~641-900px the header's contents no longer fit one row, so it
+   wraps - but tab-nav's margin-left:auto then strands it alone on an
+   otherwise-empty second row instead of using the width. Give that range
+   its own rule so the wrapped row reads as intentional. */
+@media (max-width: 900px) {
+  .tab-nav { margin-left: 0; width: 100%; justify-content: flex-start; }
+}
+
 @media (max-width: 640px) {
   header { flex-direction: column; align-items: stretch; gap: 12px; }
-  .tab-nav { margin-left: 0; justify-content: space-between; }
+  .tab-nav { justify-content: space-between; }
   .controls { flex-wrap: wrap; }
   main { padding: 16px; gap: 20px; }
   #map, #globalMap { height: 320px; }

@@ -616,3 +616,40 @@ extends past the viewport by design and is clipped by the map's own
 container). Confirmed zero horizontal page overflow on every device tested,
 with full-page screenshots at each size to visually verify nothing was cut
 off or crowded.
+
+## Session 14 - Header Bug, Favicon, and a Second Responsiveness Pass (2026-09-11)
+
+**Prompt:** (with two screenshots showing the header intact before scrolling,
+then apparently gone - only a sliver of the "Global Tracking" tab visible -
+after scrolling)
+> When I'm scrolling, the navbar kept disappearing - like it's at the back.
+> That's one issue. And if I click "Satellites Over My City" it should at
+> least be clickable - it's not; it should redirect to the same page, just
+> be clickable. We need a favicon icon - put one good icon related to this.
+> And check if there's anything else attractive or responsive we could
+> improve across the website.
+
+Found the real cause of the "disappearing" header: it was `position: sticky`
+with `z-index: 10`, but Leaflet's own controls/panes use z-index values up to
+1000 - once the map scrolled to occupy the header's screen position, the
+map's own elements painted over the sticky header instead of under it.
+Raised the header's z-index to 2000 (safely above anything Leaflet uses) and
+verified by scripting a scroll-then-check on both tabs (each has its own
+Leaflet map), confirming the header title stays visible and on top in both.
+
+Made the brand ("Satellites Over My City") a real link to `/`, and added a
+favicon using the same satellite emoji as the header icon, via an inline SVG
+data URI - no binary asset file needed for a single-icon favicon.
+
+While auditing further as asked, found and fixed a second real layout issue
+that the previous responsiveness pass had missed: in the ~641-900px range,
+the header's contents no longer fit one row and wrap, but `.tab-nav`'s
+`margin-left: auto` then stranded it alone on an otherwise-empty second row
+instead of using that row's width - confirmed visually with a screenshot at
+820px, tried right-aligning it first (no visual change, since auto-margin
+already produced that same result), then left-aligned it under the brand
+instead, which reads as a coherent two-row header rather than a stray
+floating element. Reverified across the original seven device sizes plus
+five more widths spanning the 480-1200px range, and reran the full
+regression suite - zero horizontal overflow anywhere, header stays visible
+on scroll at every size tested.
