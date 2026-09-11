@@ -12,16 +12,16 @@
       <span class="brand-icon">&#128752;</span>
       <h1>Satellites Over My City</h1>
     </div>
-    <nav class="section-nav">
-      <a href="#map-section">Map &amp; Passes</a>
-      <a href="#dashboard-section">Dashboard</a>
-      <a href="#global-section">Global Tracking</a>
-    </nav>
     <div class="controls">
       <label for="city-select">City</label>
       <select id="city-select"></select>
       <button id="refresh-btn">Find Passes</button>
     </div>
+    <nav class="section-nav">
+      <a href="#map-section">Map &amp; Passes</a>
+      <a href="#dashboard-section">Dashboard</a>
+      <a href="#global-section">Global Tracking</a>
+    </nav>
   </header>
 
   <main>
@@ -30,18 +30,18 @@
         <div id="map"></div>
       </div>
       <div class="pass-list-wrap">
-        <h2>Upcoming Passes <span class="hint">(next 48h)</span></h2>
-        <ul id="pass-list"></ul>
-      </div>
-      <div class="pass-list-wrap">
         <h2>Visible Right Now</h2>
         <ul id="visible-now-list"></ul>
+      </div>
+      <div class="pass-list-wrap">
+        <h2>Upcoming Passes <span class="hint">(next 48h)</span></h2>
+        <ul id="pass-list"></ul>
       </div>
     </section>
 
     <section id="dashboard-section" class="dashboard-panel">
       <h2>Insights Dashboard</h2>
-      <div class="charts-grid">
+      <div class="charts-row">
         <div class="chart-card">
           <h3>Orbit Type Distribution</h3>
           <div class="chart-canvas-wrap"><canvas id="orbitTypeChart"></canvas></div>
@@ -57,6 +57,8 @@
           <div class="chart-canvas-wrap"><canvas id="topSatellitesChart"></canvas></div>
           <p class="chart-empty" hidden>No visible passes in this window yet - satellite data may still be loading.</p>
         </div>
+      </div>
+      <div class="stats-row">
         <div class="chart-card stat-card">
           <h3>Passes per Day</h3>
           <p id="passesPerDayStat">-</p>

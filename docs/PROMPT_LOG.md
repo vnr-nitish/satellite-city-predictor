@@ -248,3 +248,36 @@ that toggles each orbit type's markers on/off, marker hover-to-enlarge, and
 verified responsiveness down to a 390px mobile viewport (single-column stack,
 nothing cut off). Visibility notifications remain unimplemented, flagged as a
 future item per the request to leave it "in progress."
+
+**Prompt:** (with two screenshots)
+> In the Insights Dashboard, let Orbit Type Distribution, LEO vs. Other
+> Orbits, and Most Frequently Visible be in one single row; Passes per Day
+> and Average Duration can be in the second row - that way it will be nice.
+> And I guess City and Find Passes should be beside "Satellites Over My
+> City" rather than at the extreme right - maybe at the left it would be
+> better. Could you please explain why, without selecting anything, a few
+> orbits have been visible in the map and passes - I didn't select any city
+> yet. What are those? And even after selecting a city, we have "Upcoming"
+> and "Visible" - maybe "Visible" should come first, then "Upcoming" - swap
+> the columns. And if we click on a visible one it should show, and if we
+> click again it should disable - think about how a click shows it and a
+> second click stops it. Any other UI functionality suggestions you can
+> think of?
+
+The "orbits visible before selecting a city" question led to a real bug: the
+app never cleared a previously-animated track when the city changed, so a
+track drawn while looking at one city could still be sitting on the map after
+switching to another - easy to mistake for "satellites appearing out of
+nowhere." Fixed by clearing the track/marker/animation and any "selected"
+card whenever a new city's passes load. (Separately explained, not a bug: the
+city dropdown defaults to the alphabetically-first city on page load and
+auto-fetches its data immediately, which is why *something* is always shown
+even before an explicit click.)
+
+Implemented click-to-toggle: clicking an already-animating card now turns its
+track off instead of redrawing it; clicking a different card switches to it.
+Swapped "Visible Right Now" to appear before "Upcoming Passes". Regrouped the
+dashboard into two explicit CSS grid rows (3 chart cards, then 2 stat cards)
+instead of relying on auto-fit wrapping. Moved the city selector and "Find
+Passes" button to sit beside the page title, with section navigation pushed
+to the right edge instead.

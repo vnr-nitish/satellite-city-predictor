@@ -1,4 +1,5 @@
 let map, cityMarker, trackLine, trackMarker, animTimer;
+let activeTrackKey = null; // identifies which card is currently animating, for click-to-toggle
 
 async function init() {
   map = L.map("map", { zoomControl: true }).setView([17.385, 78.4867], 3);
@@ -20,6 +21,11 @@ async function loadPasses() {
   const city = document.getElementById("city-select").value;
   const res = await fetch(`/api/passes?city=${encodeURIComponent(city)}&hours=48`);
   const data = await res.json();
+
+  // A track animated for a previously-viewed city must not linger once the
+  // city changes - otherwise it looks like satellites are passing over a
+  // city you never selected.
+  clearTrack();
 
   if (cityMarker) map.removeLayer(cityMarker);
   cityMarker = L.marker([data.lat, data.lon]).addTo(map).bindPopup(city);
@@ -71,8 +77,10 @@ function renderPassList(passes) {
     .join("");
 
   [...list.children].forEach((li, i) => {
+    const key = `pass-${i}`;
     li.addEventListener("click", () => {
-      highlightSelected(list, li);
+      if (toggleOff(key, list, li)) return;
+      highlightSelected(list, li, key);
       animatePassWindow(passes[i].norad_id, passes[i].rise_time, passes[i].set_time);
     });
   });
@@ -104,8 +112,10 @@ async function loadCurrentlyVisible(city) {
     .join("");
 
   [...list.children].forEach((li, i) => {
+    const key = `visible-${i}`;
     li.addEventListener("click", () => {
-      highlightSelected(list, li);
+      if (toggleOff(key, list, li)) return;
+      highlightSelected(list, li, key);
       // "Visible right now" has no rise/set window (it's already up), so
       // animate a short track centered on the current moment instead - long
       // enough to visibly show LEO satellites moving, short enough that
@@ -119,9 +129,30 @@ async function loadCurrentlyVisible(city) {
   });
 }
 
-function highlightSelected(list, selectedLi) {
-  [...list.children].forEach((li) => li.classList.remove("selected"));
+// Clicking the already-active card turns its animation off instead of
+// redrawing the same thing. Returns true if this click was such a toggle-off.
+function toggleOff(key, list, li) {
+  if (activeTrackKey !== key) return false;
+  clearTrack();
+  li.classList.remove("selected");
+  return true;
+}
+
+function highlightSelected(list, selectedLi, key) {
+  document.querySelectorAll("#pass-list li, #visible-now-list li").forEach((li) => li.classList.remove("selected"));
   selectedLi.classList.add("selected");
+  activeTrackKey = key;
+}
+
+function clearTrack() {
+  clearInterval(animTimer);
+  animTimer = null;
+  if (trackLine) map.removeLayer(trackLine);
+  if (trackMarker) map.removeLayer(trackMarker);
+  trackLine = null;
+  trackMarker = null;
+  activeTrackKey = null;
+  document.querySelectorAll("#pass-list li, #visible-now-list li").forEach((li) => li.classList.remove("selected"));
 }
 
 async function animatePassWindow(noradId, startIso, endIso) {

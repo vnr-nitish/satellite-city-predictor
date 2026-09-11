@@ -123,7 +123,14 @@ section > h2, .global-header h2 { font-size: 1.05rem; margin: 0 0 14px 0; font-w
 }
 
 /* ---------- Dashboard ---------- */
-.charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+.charts-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 16px; }
+.stats-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+@media (max-width: 900px) {
+  .charts-row, .stats-row { grid-template-columns: 1fr; }
+}
+@media (min-width: 901px) and (max-width: 1150px) {
+  .charts-row { grid-template-columns: repeat(2, 1fr); }
+}
 .chart-card {
   background: var(--panel);
   border: 1px solid var(--border);
