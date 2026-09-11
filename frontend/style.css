@@ -30,10 +30,13 @@ header {
   padding: 14px 24px;
   background: var(--panel);
   border-bottom: 1px solid var(--border);
-  display: flex;
+  /* 1fr / auto / 1fr centers the middle column (tab-nav) relative to the
+     whole header width, regardless of the brand's width - an empty third
+     column balances it, rather than the nav just sitting flush right. */
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  gap: 28px;
-  flex-wrap: wrap;
+  column-gap: 20px;
   position: sticky;
   top: 0;
   /* Leaflet's own controls/panes use z-index up to 1000, which otherwise
@@ -45,7 +48,7 @@ header {
 .brand-icon { font-size: 1.4rem; }
 header h1 { margin: 0; font-size: 1.15rem; font-weight: 700; letter-spacing: -0.01em; }
 
-.tab-nav { display: flex; gap: 4px; margin-left: auto; }
+.tab-nav { display: flex; gap: 4px; justify-self: center; }
 .tab-btn {
   color: var(--text-dim);
   background: transparent;
@@ -354,16 +357,11 @@ footer {
   border-top: 1px solid var(--border);
 }
 
-/* Between ~641-900px the header's contents no longer fit one row, so it
-   wraps - but tab-nav's margin-left:auto then strands it alone on an
-   otherwise-empty second row instead of using the width. Give that range
-   its own rule so the wrapped row reads as intentional. */
-@media (max-width: 900px) {
-  .tab-nav { margin-left: 0; width: 100%; justify-content: flex-start; }
-}
-
 @media (max-width: 640px) {
-  header { flex-direction: column; align-items: stretch; gap: 12px; }
+  /* The header is light now (brand + 3 tabs, no controls), so the 3-column
+     grid centering just switches to a simple stacked flex layout here
+     rather than needing an in-between wrapping fix. */
+  header { display: flex; flex-direction: column; align-items: stretch; gap: 12px; }
   .tab-nav { justify-content: space-between; }
   main { padding: 16px; gap: 20px; }
   #map, #globalMap { height: 320px; }

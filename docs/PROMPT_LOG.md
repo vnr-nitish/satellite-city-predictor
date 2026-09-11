@@ -715,3 +715,24 @@ broke under the new structure; this was the test's assumption going stale
 after the app was correctly changed, not an app bug. Reran full regression
 plus a mobile screenshot of the new Home page - zero horizontal overflow,
 globe and layout both render cleanly at 390px.
+
+## Session 16 - Glossary Wording and Header Centering (2026-09-11)
+
+**Prompt:** (with two screenshots - the Orbit Type glossary card, and the
+header with the tab row circled at the far right)
+> In the Orbit Type card, I told you to say what LEO means - that it's a
+> type of orbit, something like that - why are you writing other things
+> instead? And next: let's have the tab/pages row in the middle of the
+> header, not at the extreme right.
+
+Both concrete fixes: the "Orbit Type" glossary card jumped straight into the
+LEO/MEO/GEO/HEO mini-list without ever defining what "orbit type" itself
+means - added a one-line definition ("the category a satellite's path falls
+into, based on altitude and speed...") before the list. Re-laid-out the
+header as a 3-column grid (`1fr auto 1fr`) so the tab row sits at the true
+horizontal center regardless of the brand's width, rather than flush right -
+verified by comparing the header's and nav's computed center points
+(0px difference). This also let two responsive rules from earlier sessions
+be simplified away: with the city selector already relocated out of the
+header, the header is light enough now that the ~641-900px wrapping
+workaround from two sessions ago is no longer needed.
