@@ -1,5 +1,25 @@
 let map, cityMarker, trackLine, trackMarker, animTimer;
 let activeTrackKey = null; // identifies which card is currently animating, for click-to-toggle
+let currentCity = null;
+
+const LAST_CITY_KEY = "satellite-app-last-city";
+const VISIBLE_REFRESH_MS = 30000;
+
+function getLastCity() {
+  try {
+    return localStorage.getItem(LAST_CITY_KEY);
+  } catch (err) {
+    return null;
+  }
+}
+
+function saveLastCity(city) {
+  try {
+    localStorage.setItem(LAST_CITY_KEY, city);
+  } catch (err) {
+    // private browsing / storage disabled - fine to just skip remembering
+  }
+}
 
 async function init() {
   map = L.map("map", { zoomControl: true }).setView([17.385, 78.4867], 3);
@@ -11,14 +31,38 @@ async function init() {
   const res = await fetch("/api/cities");
   const { cities } = await res.json();
   const select = document.getElementById("city-select");
-  select.innerHTML = cities.map((c) => `<option value="${c}">${c}</option>`).join("");
 
   document.getElementById("refresh-btn").addEventListener("click", loadPasses);
-  await loadPasses();
+  document.getElementById("stop-animation-btn").addEventListener("click", clearTrack);
+
+  const lastCity = getLastCity();
+  if (lastCity && cities.includes(lastCity)) {
+    select.innerHTML = cities.map((c) => `<option value="${c}">${c}</option>`).join("");
+    select.value = lastCity;
+    await loadPasses();
+  } else {
+    select.innerHTML =
+      `<option value="" disabled selected>Select a city...</option>` +
+      cities.map((c) => `<option value="${c}">${c}</option>`).join("");
+    showGettingStartedState();
+  }
+
+  // "Visible right now" changes over time even without any user action, so
+  // keep it fresh in the background rather than only updating on click.
+  setInterval(() => {
+    if (currentCity) loadCurrentlyVisible(currentCity);
+  }, VISIBLE_REFRESH_MS);
+}
+
+function showGettingStartedState() {
+  document.getElementById("pass-list").innerHTML = "<li>Select a city above and click \"Find Passes\" to get started.</li>";
+  document.getElementById("visible-now-list").innerHTML = "<li>Select a city above and click \"Find Passes\" to get started.</li>";
 }
 
 async function loadPasses() {
   const city = document.getElementById("city-select").value;
+  if (!city) return;
+
   const res = await fetch(`/api/passes?city=${encodeURIComponent(city)}&hours=48`);
   const data = await res.json();
 
@@ -26,6 +70,9 @@ async function loadPasses() {
   // city changes - otherwise it looks like satellites are passing over a
   // city you never selected.
   clearTrack();
+
+  currentCity = city;
+  saveLastCity(city);
 
   if (cityMarker) map.removeLayer(cityMarker);
   cityMarker = L.marker([data.lat, data.lon]).addTo(map).bindPopup(city);
@@ -79,9 +126,9 @@ function renderPassList(passes) {
   [...list.children].forEach((li, i) => {
     const key = `pass-${i}`;
     li.addEventListener("click", () => {
-      if (toggleOff(key, list, li)) return;
-      highlightSelected(list, li, key);
-      animatePassWindow(passes[i].norad_id, passes[i].rise_time, passes[i].set_time);
+      if (toggleOff(key, li)) return;
+      highlightSelected(li, key);
+      animatePassWindow(passes[i].norad_id, passes[i].rise_time, passes[i].set_time, passes[i].name);
     });
   });
 }
@@ -114,34 +161,44 @@ async function loadCurrentlyVisible(city) {
   [...list.children].forEach((li, i) => {
     const key = `visible-${i}`;
     li.addEventListener("click", () => {
-      if (toggleOff(key, list, li)) return;
-      highlightSelected(list, li, key);
+      if (toggleOff(key, li)) return;
+      highlightSelected(li, key);
       // "Visible right now" has no rise/set window (it's already up), so
       // animate a short track centered on the current moment instead - long
       // enough to visibly show LEO satellites moving, short enough that
       // near-stationary GEO/MEO satellites correctly barely move.
-      const norad = data.satellites[i].norad_id;
+      const sat = data.satellites[i];
       const now = new Date();
       const start = new Date(now.getTime() - 10 * 60000).toISOString();
       const end = new Date(now.getTime() + 10 * 60000).toISOString();
-      animatePassWindow(norad, start, end);
+      animatePassWindow(sat.norad_id, start, end, sat.name);
     });
   });
 }
 
 // Clicking the already-active card turns its animation off instead of
 // redrawing the same thing. Returns true if this click was such a toggle-off.
-function toggleOff(key, list, li) {
+function toggleOff(key, li) {
   if (activeTrackKey !== key) return false;
   clearTrack();
   li.classList.remove("selected");
   return true;
 }
 
-function highlightSelected(list, selectedLi, key) {
+function highlightSelected(selectedLi, key) {
   document.querySelectorAll("#pass-list li, #visible-now-list li").forEach((li) => li.classList.remove("selected"));
   selectedLi.classList.add("selected");
   activeTrackKey = key;
+}
+
+function setAnimatingIndicator(name) {
+  const indicator = document.getElementById("animating-indicator");
+  if (name) {
+    document.getElementById("animating-name").textContent = name;
+    indicator.hidden = false;
+  } else {
+    indicator.hidden = true;
+  }
 }
 
 function clearTrack() {
@@ -152,10 +209,11 @@ function clearTrack() {
   trackLine = null;
   trackMarker = null;
   activeTrackKey = null;
+  setAnimatingIndicator(null);
   document.querySelectorAll("#pass-list li, #visible-now-list li").forEach((li) => li.classList.remove("selected"));
 }
 
-async function animatePassWindow(noradId, startIso, endIso) {
+async function animatePassWindow(noradId, startIso, endIso, satelliteName) {
   clearInterval(animTimer);
   if (trackLine) map.removeLayer(trackLine);
   if (trackMarker) map.removeLayer(trackMarker);
@@ -165,6 +223,8 @@ async function animatePassWindow(noradId, startIso, endIso) {
   );
   const { points } = await res.json();
   if (!points.length) return;
+
+  setAnimatingIndicator(satelliteName);
 
   const latlngs = points.map((p) => [p.lat, p.lon]);
   trackLine = L.polyline(latlngs, { color: "#38bdf8", weight: 3 }).addTo(map);

@@ -84,6 +84,29 @@ section > h2, .global-header h2 { font-size: 1.05rem; margin: 0 0 14px 0; font-w
 .map-card { border-radius: 10px; overflow: hidden; border: 1px solid var(--border); flex: 2 1 500px; min-width: 300px; }
 #map { height: 440px; }
 
+.animating-indicator[hidden] { display: none; }
+.animating-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: var(--panel-alt);
+  color: var(--text);
+  font-size: 0.8rem;
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--border);
+}
+.animating-indicator span::before { color: var(--geo); }
+.animating-indicator button {
+  padding: 3px 10px;
+  font-size: 0.75rem;
+  background: transparent;
+  border: 1px solid var(--text-faint);
+  color: var(--text-dim);
+  font-weight: 600;
+}
+.animating-indicator button:hover { background: var(--panel-hover); color: var(--text); }
+
 .pass-list-wrap {
   flex: 1 1 280px;
   background: var(--panel);

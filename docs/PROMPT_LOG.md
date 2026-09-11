@@ -281,3 +281,27 @@ dashboard into two explicit CSS grid rows (3 chart cards, then 2 stat cards)
 instead of relying on auto-fit wrapping. Moved the city selector and "Find
 Passes" button to sit beside the page title, with section navigation pushed
 to the right edge instead.
+
+Offered four further suggestions (auto-refreshing "Visible Right Now",
+a "select a city" placeholder instead of a silent default, remembering the
+last-picked city, and a visible animating/stop indicator) rather than
+building them unprompted.
+
+**Prompt:**
+> Ok Pls build!
+
+Built all four. First-ever visit now shows an explicit "Select a city..."
+placeholder with no default city loaded; a return visit remembers the last
+city (localStorage) and loads it automatically instead of always resetting to
+the alphabetically-first city. Added a small "Animating <name> · Stop" bar
+above the map whenever a track is playing, wired to the same toggle-off logic
+as clicking the card again. "Visible Right Now" now refreshes on its own
+every 30 seconds - verified in a browser by watching network requests over a
+33-second window (two calls landed at t=0 and t=29s, as expected).
+
+While testing the new "Stop" button, found and fixed a real CSS bug: the
+indicator's stylesheet rule set `display: flex` unconditionally, which
+overrides the browser's default handling of the `hidden` attribute - so
+setting `.hidden = true` in JavaScript had no visible effect. Fixed with an
+explicit `[hidden] { display: none }` override, verified the indicator now
+actually disappears when clicking Stop.

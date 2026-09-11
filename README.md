@@ -100,15 +100,19 @@ itself a small piece of real data analysis rather than a hardcoded label.
 
 ## Features
 
-- City selector with animated satellite ground-track visualization on a map
+- City selector with animated satellite ground-track visualization on a map. First
+  visit prompts you to pick a city; return visits remember your last city
+  (localStorage) and load it automatically
 - List of upcoming passes (start time, end time, peak elevation, peak altitude,
-  duration) - clicking a pass animates its ground track on the map
+  duration) - clicking a pass animates its ground track on the map; clicking it
+  again (or the "Stop" button that appears above the map while animating) turns
+  it off
 - "Visible right now" panel: which tracked satellites are above the horizon (and
   actually sunlit/visible) for the selected city at this exact moment - distinct from
   the upcoming-passes list, and how GEO satellites (which rarely produce a rise/set
   event) show up at all. Clicking one animates a short track centered on the current
   moment (since there's no rise/set window to animate between for something already
-  overhead)
+  overhead). Refreshes automatically every 30 seconds
 - Header navigation to jump between Map & Passes / Dashboard / Global Tracking on the
   single scrolling page
 - Insights dashboard: orbit-type distribution, **"LEO vs. Other Orbits: Avg. Pass
