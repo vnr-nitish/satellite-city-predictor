@@ -8,11 +8,10 @@ DB_PATH = Path(__file__).parent / "satellites.db"
 def get_connection():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
-    return conn
-
-
-def init_db():
-    conn = get_connection()
+    # Idempotent and cheap, so it's safe to run on every connection rather
+    # than only once at startup - if the database file is ever deleted,
+    # replaced, or created fresh out from under a running process, the app
+    # recreates its schema instead of every query 500ing on "no such table".
     conn.execute(
         """
         CREATE TABLE IF NOT EXISTS tle_cache (
@@ -25,8 +24,11 @@ def init_db():
         )
         """
     )
-    conn.commit()
-    conn.close()
+    return conn
+
+
+def init_db():
+    get_connection().close()
 
 
 def upsert_tle(norad_id: int, name: str, orbit_type: str, line1: str, line2: str):
