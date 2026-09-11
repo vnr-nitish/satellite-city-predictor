@@ -29,6 +29,13 @@ async function loadPasses() {
   if (window.loadInsights) window.loadInsights(city);
 }
 
+function formatDuration(totalSeconds) {
+  if (totalSeconds < 60) return `${totalSeconds}s`;
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.round((totalSeconds % 3600) / 60);
+  return hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
+}
+
 async function loadCurrentlyVisible(city) {
   const res = await fetch(`/api/currently-visible?city=${encodeURIComponent(city)}`);
   const data = await res.json();
@@ -61,12 +68,14 @@ function renderPassList(passes, city) {
   list.innerHTML = passes
     .map((p, i) => {
       const rise = new Date(p.rise_time).toLocaleString();
+      const set = new Date(p.set_time).toLocaleString();
       return `<li data-index="${i}">
         <div class="sat-name">${p.name}</div>
         <div class="orbit-tag">${p.orbit_type}</div>
-        <div>Rise: ${rise}</div>
+        <div>Start: ${rise}</div>
+        <div>End: ${set}</div>
         <div>Peak elevation: ${p.peak_elevation_deg}&deg; &middot; Altitude: ${p.peak_altitude_km} km</div>
-        <div>Duration: ${p.duration_seconds}s</div>
+        <div>Duration: ${formatDuration(p.duration_seconds)}</div>
       </li>`;
     })
     .join("");
