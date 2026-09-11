@@ -37,7 +37,7 @@ backend/
 frontend/
   index.html, style.css
   app.js         location handling (city or map click), map, ground-track animation,
-                 pass lists, best-pass spotlight, sky-view compass
+                 pass lists, best-pass spotlight
   dashboard.js   insights dashboard charts
   global.js      bonus: live global tracking map
   tabs.js        tab switching between the two views
@@ -142,20 +142,16 @@ itself a small piece of real data analysis rather than a hardcoded label.
   altitude, orbital period, a real example from the curated satellite set, and what it
   means for pass behavior), aimed at students or hobbyists who want to understand *why*
   the data looks the way it does, not just see the numbers
-- **Best Pass spotlight**: automatically highlights the single best upcoming viewing
-  opportunity (the visible pass with the highest peak elevation) with a live countdown
-  to rise time - an answer to "what's actually worth going outside for", computed
-  entirely from data already fetched, no extra request needed
+- **Best Pass spotlight**: sits in the Insights Dashboard's stat row, automatically
+  highlighting the single best upcoming viewing opportunity (the visible pass with the
+  highest peak elevation) with a live countdown to rise time - an answer to "what's
+  actually worth going outside for", computed entirely from data already fetched, no
+  extra request needed
 - **Pass notifications** (closes the assignment's own suggested bonus feature): opt in
   and the browser alerts you a few minutes before a good pass (visible, 30°+ peak
   elevation) rises. Purely client-side - no server push infrastructure, so it only
   fires while the tab stays open, which the status text says plainly rather than
   implying something more reliable than it is
-- **Sky view compass**: a polar plot (center = straight overhead, edge = horizon, N/E/S/W
-  around the ring) plotting every currently-visible satellite by its real elevation and
-  azimuth - the same layout real satellite-tracking software uses, so "elevation 62,
-  azimuth 226" becomes a glance instead of two numbers to mentally convert into a
-  direction. Clicking a dot animates that satellite, same as clicking its list card
 
 **Tab 2 - Global Tracking**
 

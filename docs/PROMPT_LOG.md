@@ -534,3 +534,43 @@ symptom, and fixed with the classic reliable pattern: wrap the SVG in a plain
 100% - plain divs don't hit the same replaced-element sizing edge case.
 Verified with a full regression pass (existing suite, mobile screenshot,
 click-to-animate from a sky-plot dot) after the fix.
+
+## Session 12 - UI Refinement Pass (2026-09-11)
+
+**Prompt:**
+> I just wanted you to do some UI changes - the best spotlight, you can bring
+> it into the row with the total number [passes per day] and the average -
+> that way it'll be three good cards. After the map, the notify button is
+> good, that's good. In the visible section you've included some more which
+> - remove that, it's not looking good. And after each section it's better
+> if you give some space - I'm unable to differentiate between the sections,
+> so after every section there should be a small space so it gives good
+> detailing. Please walk through and think how we can improve the UI from a
+> user perspective, suggest me those changes, and then we can start working
+> on it.
+
+Asked one clarifying question before touching anything, since "in the
+visible section you've included some more" was ambiguous about which recent
+addition it meant: confirmed it was the sky-compass plot added last session,
+to be removed entirely rather than resized or relocated.
+
+Implemented all three:
+- Removed the sky-compass plot entirely from "Visible Right Now" (HTML, CSS,
+  and the `renderSkyPlot` function) - back to a plain list.
+- Moved the Best Pass spotlight out of its own standalone banner into the
+  Insights Dashboard's stat row, now three matching cards (Best Pass /
+  Passes per Day / Average Pass Duration) instead of a separate wide banner
+  plus a two-card row.
+- Added a visible divider (thin rule + spacing) between Map & Passes,
+  Insights Dashboard, and Understanding Orbits, and increased the overall
+  gap between sections, so each reads as clearly distinct.
+
+While confirming the result, hit Celestrak hard-blocking with 403 Forbidden
+across every group (a harder block than the 503s/timeouts seen earlier,
+consistent with the volume of requests made testing this project). Since the
+in-memory cache (from the serverless migration) can't be seeded by a
+separate script the way the old SQLite file could, verified the final layout
+by running a throwaway server instance seeded in-process with real TLE data
+already captured earlier in the project - confirming the removed compass,
+the three-card stats row, and the section dividers all render correctly with
+live-shaped data, not just in the empty-state case.

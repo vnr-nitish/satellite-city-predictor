@@ -81,7 +81,7 @@ button:active { transform: scale(0.97); }
 
 /* ---------- Layout ---------- */
 main { padding: 24px; max-width: 1400px; margin: 0 auto; width: 100%; }
-.tab-panel { display: flex; flex-direction: column; gap: 28px; }
+.tab-panel { display: flex; flex-direction: column; gap: 32px; }
 section > h2, .global-header h2 { font-size: 1.05rem; margin: 0 0 14px 0; font-weight: 700; }
 .hint { font-weight: 400; color: var(--text-faint); font-size: 0.8rem; }
 
@@ -95,17 +95,16 @@ section > h2, .global-header h2 { font-size: 1.05rem; margin: 0 0 14px 0; font-w
 .spotlight-card[hidden] { display: none; }
 .spotlight-card {
   background: linear-gradient(135deg, rgba(56,189,248,0.12), rgba(167,139,250,0.10));
-  border: 1px solid var(--leo);
-  border-radius: 10px;
-  padding: 16px 18px;
+  border-color: var(--leo);
   cursor: pointer;
   transition: border-color 0.15s;
+  justify-content: center;
 }
 .spotlight-card:hover { border-color: var(--meo); }
 .spotlight-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--leo); font-weight: 700; margin-bottom: 6px; }
-.spotlight-name { font-size: 1.15rem; font-weight: 800; }
-.spotlight-detail { font-size: 0.85rem; color: var(--text-dim); margin-top: 4px; }
-.spotlight-countdown { font-size: 1.4rem; font-weight: 800; color: var(--leo); margin-top: 8px; }
+.spotlight-name { font-size: 0.95rem; font-weight: 800; }
+.spotlight-detail { font-size: 0.78rem; color: var(--text-dim); margin-top: 4px; line-height: 1.4; }
+.spotlight-countdown { font-size: 1.15rem; font-weight: 800; color: var(--leo); margin-top: 8px; }
 
 /* ---------- Notifications ---------- */
 .notify-bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
@@ -113,16 +112,10 @@ section > h2, .global-header h2 { font-size: 1.05rem; margin: 0 0 14px 0; font-w
 .notify-bar button:hover { background: var(--panel-hover); }
 .notify-bar button.active { background: rgba(56,189,248,0.15); border-color: var(--leo); color: var(--leo); }
 
-/* ---------- Sky view plot ---------- */
-.sky-view-wrap { display: flex; flex-direction: column; }
-.sky-plot-frame { width: 100%; max-width: 220px; aspect-ratio: 1 / 1; margin: 4px auto 12px auto; }
-.sky-plot { width: 100%; height: 100%; display: block; }
-.sky-plot .ring { fill: none; stroke: var(--border); stroke-width: 1; }
-.sky-plot .compass-label { fill: var(--text-faint); font-size: 9px; text-anchor: middle; }
-.sky-plot .sky-dot { cursor: pointer; stroke: var(--bg); stroke-width: 1.5; }
-.sky-plot .sky-dot:hover { stroke: var(--text); }
-.sky-plot .sky-dot-label { fill: var(--text-dim); font-size: 7px; text-anchor: middle; pointer-events: none; }
 .map-hint { margin: 0; padding: 8px 14px; font-size: 0.78rem; color: var(--text-faint); background: var(--panel-alt); border-top: 1px solid var(--border); }
+
+/* ---------- Section dividers ---------- */
+.section-divider { height: 1px; background: var(--border); margin: 8px 0; }
 
 .animating-indicator[hidden] { display: none; }
 .animating-indicator {
@@ -187,13 +180,13 @@ section > h2, .global-header h2 { font-size: 1.05rem; margin: 0 0 14px 0; font-w
 }
 
 /* ---------- Dashboard ---------- */
-.charts-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 16px; }
-.stats-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+.charts-row, .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 16px; }
+.stats-row { margin-bottom: 0; }
 @media (max-width: 900px) {
   .charts-row, .stats-row { grid-template-columns: 1fr; }
 }
 @media (min-width: 901px) and (max-width: 1150px) {
-  .charts-row { grid-template-columns: repeat(2, 1fr); }
+  .charts-row, .stats-row { grid-template-columns: repeat(2, 1fr); }
 }
 .chart-card {
   background: var(--panel);
