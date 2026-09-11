@@ -46,8 +46,12 @@ this project uses:
 
 | Source | Used for | Why |
 |---|---|---|
-| [Celestrak](https://celestrak.org/NORAD/elements/) | Orbital element sets (TLEs), grouped by satellite category (space stations, weather, GPS, Starlink, etc.) | Free, no API key, no rate limit, and always reflects the current active catalog. This is the only live external dependency the app has. |
-| Static city lookup (`backend/cities.py`) | City name → latitude/longitude | A small, curated table is simpler and more reliable than a geocoding API for a fixed set of cities; can be swapped for a geocoder later if free-text city search is needed. |
+| [Celestrak](https://celestrak.org/NORAD/elements/) | Orbital element sets (TLEs), grouped by satellite category (space stations, weather, science, GPS, GOES) | Free, no API key, no rate limit, and always reflects the current active catalog. The core data dependency the app is built around. |
+| [NASA JPL DE421 ephemeris](https://naif.jpl.nasa.gov/) (`de421.bsp`) | Sun/Earth positions, used to compute whether a satellite is sunlit at a given moment (the `visible` flag on every pass and on "Visible Right Now") | Downloaded once automatically by Skyfield on first use and cached locally (~17MB); this is real astronomical reference data, not something we could approximate ourselves. |
+| [OpenStreetMap](https://www.openstreetmap.org/) tile server | Basemap imagery for both Leaflet maps (city view and live global tracking) | Free, no API key, standard choice for Leaflet-based maps. |
+| Static city lookup (`backend/cities.py`) | City name → latitude/longitude | A small, curated table (31 cities) is simpler and more reliable than a geocoding API for a fixed set of cities; can be swapped for a geocoder later if free-text city search is needed. |
+
+Additionally, [Leaflet](https://leafletjs.com/) and [Chart.js](https://www.chartjs.org/) are loaded from the cdnjs CDN - these are code libraries, not data sources, but are listed here for completeness since they are still external network dependencies.
 
 Sources considered and intentionally **not** used, with reasoning:
 - **Space-Track.org** — same underlying catalog data as Celestrak, but requires manual
