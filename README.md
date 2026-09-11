@@ -18,24 +18,30 @@ orbital path on a map, along with a dashboard of derived insights.
 - **Orbit math**: [Skyfield](https://rhodesmill.org/skyfield/) (SGP4 propagator) turns
   raw orbital element sets into satellite positions and rise/peak/set pass events for a
   given city.
-- **Storage**: SQLite (`backend/satellites.db`, gitignored) caches fetched orbital data
-  so we don't hit external sources on every request.
-- **Frontend**: Plain HTML/CSS/JS, [Leaflet](https://leafletjs.com/) for the map and
+- **Storage**: an in-memory cache (`backend/db.py`) holding the curated satellite set,
+  refreshed on demand rather than on a fixed schedule (see the Deploying section for
+  why this isn't a SQLite file).
+- **Frontend**: Plain HTML/CSS/JS, [Leaflet](https://leafletjs.com/) for the maps and
   animated ground track, [Chart.js](https://www.chartjs.org/) for the insights
-  dashboard. No build tooling required.
+  dashboard. No build tooling required. Two tabs: "Map & Passes" (location picker, map,
+  pass lists, dashboard, orbit-type reference) and "Global Tracking" (live world map).
 
 ```
 backend/
   main.py        FastAPI app & API routes
-  tle_fetch.py   pulls orbital element sets from Celestrak, caches to SQLite
+  tle_fetch.py   pulls orbital element sets from Celestrak (concurrently), caches them
   propagate.py   Skyfield-based pass prediction & ground-track sampling
-  db.py          SQLite schema/helpers
+  db.py          in-memory TLE cache
   cities.py      curated city -> lat/lon lookup
+  de421.bsp      bundled JPL ephemeris (sunlit/visibility calculation)
 frontend/
   index.html, style.css
-  app.js         city passes: map, ground-track animation, pass list
+  app.js         location handling (city or map click), map, ground-track animation, pass lists
   dashboard.js   insights dashboard charts
   global.js      bonus: live global tracking map
+  tabs.js        tab switching between the two views
+api/
+  index.py       Vercel entrypoint (imports the FastAPI app from backend/)
 ```
 
 ## Data Sources
@@ -100,40 +106,54 @@ itself a small piece of real data analysis rather than a hardcoded label.
 
 ## Features
 
-- City selector with animated satellite ground-track visualization on a map. First
-  visit prompts you to pick a city; return visits remember your last city
-  (localStorage) and load it automatically
+**Tab 1 — Map & Passes**
+
+- City selector *or* click anywhere on the map - both work as location input, resolved
+  by the same backend endpoints (`city=` or `lat=`/`lon=` query params). A map click
+  fetches immediately, no extra button press needed. First visit prompts you to pick a
+  location; return visits remember your last city (localStorage) and load it
+  automatically
 - List of upcoming passes (start time, end time, peak elevation, peak altitude,
   duration) - clicking a pass animates its ground track on the map; clicking it
   again (or the "Stop" button that appears above the map while animating) turns
-  it off. A dashed line plus a live distance readout connects the city to the
+  it off. A dashed line plus a live distance readout connects the location to the
   satellite's current ground-track position - for a low LEO pass this line is
   short, but for a MEO/GEO satellite it can stretch thousands of km, since a
   satellite that high can sit low in your sky while its ground track is a
   continent away. Without this, that looked like a data error rather than the
-  expected geometry it actually is.
+  expected geometry it actually is
 - "Visible right now" panel: which tracked satellites are above the horizon (and
-  actually sunlit/visible) for the selected city at this exact moment - distinct from
-  the upcoming-passes list, and how GEO satellites (which rarely produce a rise/set
-  event) show up at all. Clicking one animates a short track centered on the current
-  moment (since there's no rise/set window to animate between for something already
-  overhead). Refreshes automatically every 30 seconds
-- Header navigation to jump between Map & Passes / Dashboard / Global Tracking on the
-  single scrolling page
+  actually sunlit/visible) right now - distinct from the upcoming-passes list, and how
+  GEO satellites (which rarely produce a rise/set event) show up at all. Clicking one
+  animates a short track centered on the current moment, sized to the satellite's
+  orbit type (a fixed window that works for a fast LEO satellite is too short to show
+  any visible motion for a slower MEO one) - and is labeled "near-stationary orbit"
+  when a satellite genuinely doesn't move enough to show, rather than looking broken.
+  Refreshes automatically every 30 seconds
 - Insights dashboard: orbit-type distribution, **"LEO vs. Other Orbits: Avg. Pass
   Duration"** (a log-scale bar chart - this is the dashboard's answer to the
   assignment's "differences between LEO satellites and others" requirement: LEO
   passes last minutes, MEO/HEO passes can last hours, visually obvious at a glance),
   passes/day, average pass duration, most frequently *visible* satellites (sunlit,
   not just geometrically above the horizon)
-- **Bonus feature — live global tracking**: a second map showing the real-time current
+- **"Understanding Orbits" reference**: a short explanation of LEO/MEO/GEO/HEO (typical
+  altitude, orbital period, a real example from the curated satellite set, and what it
+  means for pass behavior), aimed at students or hobbyists who want to understand *why*
+  the data looks the way it does, not just see the numbers
+
+**Tab 2 — Global Tracking**
+
+- **Bonus feature — live global tracking**: a map showing the real-time current
   position of every curated satellite worldwide, color-coded by orbit type and polling
   `/api/live-positions` every 5 seconds. This is computed entirely locally from cached
   TLEs (no external calls per refresh), so it's cheap enough to poll continuously.
   The legend doubles as a filter - click LEO/MEO/GEO/HEO to show/hide that orbit
   class's markers - and markers grow on hover before showing their popup on click.
+
+**Not yet built**
+
 - **Bonus feature (in progress) — visibility notifications**: notifying when a
-  satellite is about to pass over the selected city. Not yet implemented.
+  satellite is about to pass over the selected location.
 
 ## Running Locally
 

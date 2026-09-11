@@ -1,6 +1,7 @@
 import logging
 from collections import Counter
 from pathlib import Path
+from typing import Optional
 
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.staticfiles import StaticFiles
@@ -34,6 +35,25 @@ def ensure_fresh():
         )
 
 
+def resolve_location(city: Optional[str], lat: Optional[float], lon: Optional[float]):
+    """Every location-based endpoint accepts either a known city name or a
+    raw lat/lon pair (from clicking anywhere on the map), so this is the one
+    place that turns either into (lat, lon, label)."""
+    if city:
+        coords = get_city_coords(city)
+        if not coords:
+            raise HTTPException(status_code=404, detail=f"Unknown city '{city}'. See /api/cities.")
+        return coords[0], coords[1], city
+
+    if lat is not None and lon is not None:
+        ns = "N" if lat >= 0 else "S"
+        ew = "E" if lon >= 0 else "W"
+        label = f"{abs(lat):.2f}°{ns}, {abs(lon):.2f}°{ew}"
+        return lat, lon, label
+
+    raise HTTPException(status_code=400, detail="Provide either 'city' or both 'lat' and 'lon'.")
+
+
 @app.get("/api/cities")
 def api_cities():
     return {"cities": list_cities()}
@@ -46,18 +66,20 @@ def api_satellites():
 
 
 @app.get("/api/passes")
-def api_passes(city: str = Query(...), hours: float = Query(48, ge=1, le=168)):
-    coords = get_city_coords(city)
-    if not coords:
-        raise HTTPException(status_code=404, detail=f"Unknown city '{city}'. See /api/cities.")
+def api_passes(
+    city: Optional[str] = Query(None),
+    lat: Optional[float] = Query(None, ge=-90, le=90),
+    lon: Optional[float] = Query(None, ge=-180, le=180),
+    hours: float = Query(48, ge=1, le=168),
+):
+    res_lat, res_lon, label = resolve_location(city, lat, lon)
     ensure_fresh()
-    lat, lon = coords
     return {
-        "city": city,
-        "lat": lat,
-        "lon": lon,
+        "location": label,
+        "lat": res_lat,
+        "lon": res_lon,
         "hours": hours,
-        "passes": get_passes(lat, lon, hours),
+        "passes": get_passes(res_lat, res_lon, hours),
     }
 
 
@@ -73,13 +95,15 @@ def api_track(
 
 
 @app.get("/api/insights")
-def api_insights(city: str = Query(...), hours: float = Query(48, ge=1, le=168)):
-    coords = get_city_coords(city)
-    if not coords:
-        raise HTTPException(status_code=404, detail=f"Unknown city '{city}'. See /api/cities.")
+def api_insights(
+    city: Optional[str] = Query(None),
+    lat: Optional[float] = Query(None, ge=-90, le=90),
+    lon: Optional[float] = Query(None, ge=-180, le=180),
+    hours: float = Query(48, ge=1, le=168),
+):
+    res_lat, res_lon, label = resolve_location(city, lat, lon)
     ensure_fresh()
-    lat, lon = coords
-    passes = get_passes(lat, lon, hours)
+    passes = get_passes(res_lat, res_lon, hours)
 
     total = len(passes)
     days = hours / 24
@@ -105,7 +129,7 @@ def api_insights(city: str = Query(...), hours: float = Query(48, ge=1, le=168))
     top_satellites = Counter(p["name"] for p in visible_passes).most_common(5)
 
     return {
-        "city": city,
+        "location": label,
         "window_hours": hours,
         "total_passes": total,
         "visible_passes": len(visible_passes),
@@ -118,13 +142,14 @@ def api_insights(city: str = Query(...), hours: float = Query(48, ge=1, le=168))
 
 
 @app.get("/api/currently-visible")
-def api_currently_visible(city: str = Query(...)):
-    coords = get_city_coords(city)
-    if not coords:
-        raise HTTPException(status_code=404, detail=f"Unknown city '{city}'. See /api/cities.")
+def api_currently_visible(
+    city: Optional[str] = Query(None),
+    lat: Optional[float] = Query(None, ge=-90, le=90),
+    lon: Optional[float] = Query(None, ge=-180, le=180),
+):
+    res_lat, res_lon, label = resolve_location(city, lat, lon)
     ensure_fresh()
-    lat, lon = coords
-    return {"city": city, "satellites": get_currently_visible(lat, lon)}
+    return {"location": label, "satellites": get_currently_visible(res_lat, res_lon)}
 
 
 @app.get("/api/live-positions")

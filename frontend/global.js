@@ -8,6 +8,7 @@ const hiddenOrbitTypes = new Set();
 
 function initGlobalMap() {
   globalMap = L.map("globalMap", { worldCopyJump: true }).setView([20, 0], 2);
+  window.globalMap = globalMap;
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
     attribution: "&copy; OpenStreetMap contributors",
     maxZoom: 18,

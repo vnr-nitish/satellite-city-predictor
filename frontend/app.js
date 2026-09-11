@@ -1,9 +1,18 @@
-let map, cityMarker, trackLine, trackMarker, connectorLine, animTimer;
+let map, locationMarker, trackLine, trackMarker, connectorLine, animTimer;
 let activeTrackKey = null; // identifies which card is currently animating, for click-to-toggle
-let currentCity = null;
+let currentLocation = null; // { type: "city", city } or { type: "coords", lat, lon }
 
 const LAST_CITY_KEY = "satellite-app-last-city";
 const VISIBLE_REFRESH_MS = 30000;
+
+// "Visible right now" has no rise/set window to animate between (the
+// satellite's already up), so we animate a short window centered on now
+// instead. How much of that window actually shows movement depends on the
+// orbit: LEO satellites cross the sky in minutes, so a short window is
+// plenty; MEO/HEO move much more slowly and need a wider window to show a
+// visible arc at all; GEO doesn't meaningfully move regardless of window
+// size, since "geostationary" means fixed relative to the ground.
+const VISIBLE_WINDOW_MINUTES = { LEO: 10, MEO: 45, HEO: 45, GEO: 10 };
 
 function getLastCity() {
   try {
@@ -23,23 +32,32 @@ function saveLastCity(city) {
 
 async function init() {
   map = L.map("map", { zoomControl: true }).setView([17.385, 78.4867], 3);
+  window.map = map;
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
     attribution: "&copy; OpenStreetMap contributors",
     maxZoom: 18,
   }).addTo(map);
 
+  map.on("click", (e) => {
+    document.getElementById("city-select").value = "";
+    loadLocation({ type: "coords", lat: e.latlng.lat, lon: e.latlng.lng });
+  });
+
   const res = await fetch("/api/cities");
   const { cities } = await res.json();
   const select = document.getElementById("city-select");
 
-  document.getElementById("refresh-btn").addEventListener("click", loadPasses);
+  document.getElementById("refresh-btn").addEventListener("click", () => {
+    const city = select.value;
+    if (city) loadLocation({ type: "city", city });
+  });
   document.getElementById("stop-animation-btn").addEventListener("click", clearTrack);
 
   const lastCity = getLastCity();
   if (lastCity && cities.includes(lastCity)) {
     select.innerHTML = cities.map((c) => `<option value="${c}">${c}</option>`).join("");
     select.value = lastCity;
-    await loadPasses();
+    await loadLocation({ type: "city", city: lastCity });
   } else {
     select.innerHTML =
       `<option value="" disabled selected>Select a city...</option>` +
@@ -50,37 +68,42 @@ async function init() {
   // "Visible right now" changes over time even without any user action, so
   // keep it fresh in the background rather than only updating on click.
   setInterval(() => {
-    if (currentCity) loadCurrentlyVisible(currentCity);
+    if (currentLocation) loadCurrentlyVisible();
   }, VISIBLE_REFRESH_MS);
 }
 
 function showGettingStartedState() {
-  document.getElementById("pass-list").innerHTML = "<li>Select a city above and click \"Find Passes\" to get started.</li>";
-  document.getElementById("visible-now-list").innerHTML = "<li>Select a city above and click \"Find Passes\" to get started.</li>";
+  const msg = "Select a city above, or click anywhere on the map, to get started.";
+  document.getElementById("pass-list").innerHTML = `<li>${msg}</li>`;
+  document.getElementById("visible-now-list").innerHTML = `<li>${msg}</li>`;
 }
 
-async function loadPasses() {
-  const city = document.getElementById("city-select").value;
-  if (!city) return;
+function locationQueryString(loc) {
+  return loc.type === "city"
+    ? `city=${encodeURIComponent(loc.city)}`
+    : `lat=${loc.lat}&lon=${loc.lon}`;
+}
 
-  const res = await fetch(`/api/passes?city=${encodeURIComponent(city)}&hours=48`);
+async function loadLocation(loc) {
+  const res = await fetch(`/api/passes?${locationQueryString(loc)}&hours=48`);
+  if (!res.ok) return;
   const data = await res.json();
 
-  // A track animated for a previously-viewed city must not linger once the
-  // city changes - otherwise it looks like satellites are passing over a
-  // city you never selected.
+  // A track animated for a previously-viewed location must not linger once
+  // the location changes - otherwise it looks like satellites are passing
+  // over somewhere you never selected.
   clearTrack();
 
-  currentCity = city;
-  saveLastCity(city);
+  currentLocation = loc;
+  if (loc.type === "city") saveLastCity(loc.city);
 
-  if (cityMarker) map.removeLayer(cityMarker);
-  cityMarker = L.marker([data.lat, data.lon]).addTo(map).bindPopup(city);
+  if (locationMarker) map.removeLayer(locationMarker);
+  locationMarker = L.marker([data.lat, data.lon]).addTo(map).bindPopup(data.location);
   map.setView([data.lat, data.lon], 4);
 
   renderPassList(data.passes);
-  loadCurrentlyVisible(city);
-  if (window.loadInsights) window.loadInsights(city);
+  loadCurrentlyVisible();
+  if (window.loadInsights) window.loadInsights(locationQueryString(loc));
 }
 
 function formatDuration(totalSeconds) {
@@ -133,8 +156,10 @@ function renderPassList(passes) {
   });
 }
 
-async function loadCurrentlyVisible(city) {
-  const res = await fetch(`/api/currently-visible?city=${encodeURIComponent(city)}`);
+async function loadCurrentlyVisible() {
+  if (!currentLocation) return;
+  const res = await fetch(`/api/currently-visible?${locationQueryString(currentLocation)}`);
+  if (!res.ok) return;
   const data = await res.json();
   const list = document.getElementById("visible-now-list");
 
@@ -163,14 +188,11 @@ async function loadCurrentlyVisible(city) {
     li.addEventListener("click", () => {
       if (toggleOff(key, li)) return;
       highlightSelected(li, key);
-      // "Visible right now" has no rise/set window (it's already up), so
-      // animate a short track centered on the current moment instead - long
-      // enough to visibly show LEO satellites moving, short enough that
-      // near-stationary GEO/MEO satellites correctly barely move.
       const sat = data.satellites[i];
+      const windowMinutes = VISIBLE_WINDOW_MINUTES[sat.orbit_type] || 10;
       const now = new Date();
-      const start = new Date(now.getTime() - 10 * 60000).toISOString();
-      const end = new Date(now.getTime() + 10 * 60000).toISOString();
+      const start = new Date(now.getTime() - windowMinutes * 60000).toISOString();
+      const end = new Date(now.getTime() + windowMinutes * 60000).toISOString();
       animatePassWindow(sat.norad_id, start, end, sat.name);
     });
   });
@@ -222,21 +244,22 @@ function clearTrack() {
 // can sit low in your sky while its ground track is a continent away. This
 // dashed line and the live distance readout make that visible instead of
 // leaving the map looking like a data error.
-function updateGroundTrackNote(cityLatLng, satLatLng) {
+function updateGroundTrackNote(originLatLng, satLatLng, trackSpanKm) {
   if (!connectorLine) {
-    connectorLine = L.polyline([cityLatLng, satLatLng], {
+    connectorLine = L.polyline([originLatLng, satLatLng], {
       color: "#f59e0b",
       weight: 2,
       dashArray: "6 8",
       opacity: 0.7,
     }).addTo(map);
   } else {
-    connectorLine.setLatLngs([cityLatLng, satLatLng]);
+    connectorLine.setLatLngs([originLatLng, satLatLng]);
   }
 
-  const distanceKm = Math.round(cityLatLng.distanceTo(satLatLng) / 1000);
+  const distanceKm = Math.round(originLatLng.distanceTo(satLatLng) / 1000);
+  const stationaryNote = trackSpanKm < 50 ? " (near-stationary orbit)" : "";
   document.getElementById("ground-track-note").textContent =
-    `· ground track ${distanceKm.toLocaleString()} km away (dashed line)`;
+    `· ground track ${distanceKm.toLocaleString()} km away (dashed line)${stationaryNote}`;
 }
 
 async function animatePassWindow(noradId, startIso, endIso, satelliteName) {
@@ -258,15 +281,17 @@ async function animatePassWindow(noradId, startIso, endIso, satelliteName) {
   trackLine = L.polyline(latlngs, { color: "#38bdf8", weight: 3 }).addTo(map);
   trackMarker = L.circleMarker(latlngs[0], { radius: 7, color: "#f59e0b", fillColor: "#f59e0b", fillOpacity: 1, weight: 2 }).addTo(map);
 
-  const cityLatLng = cityMarker.getLatLng();
-  updateGroundTrackNote(cityLatLng, trackMarker.getLatLng());
+  const originLatLng = locationMarker.getLatLng();
+  const trackBounds = L.latLngBounds(latlngs);
+  const trackSpanKm = trackBounds.getSouthWest().distanceTo(trackBounds.getNorthEast()) / 1000;
+  updateGroundTrackNote(originLatLng, trackMarker.getLatLng(), trackSpanKm);
 
-  map.fitBounds(L.latLngBounds(latlngs).extend(cityLatLng), { maxZoom: 5, padding: [30, 30] });
+  map.fitBounds(trackBounds.extend(originLatLng), { maxZoom: 5, padding: [30, 30] });
 
   let i = 0;
   animTimer = setInterval(() => {
     trackMarker.setLatLng(latlngs[i]);
-    updateGroundTrackNote(cityLatLng, trackMarker.getLatLng());
+    updateGroundTrackNote(originLatLng, trackMarker.getLatLng(), trackSpanKm);
     i = (i + 1) % latlngs.length;
   }, 200);
 }

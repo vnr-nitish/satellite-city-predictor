@@ -42,16 +42,21 @@ header {
 .brand-icon { font-size: 1.4rem; }
 header h1 { margin: 0; font-size: 1.15rem; font-weight: 700; letter-spacing: -0.01em; }
 
-.section-nav { display: flex; gap: 4px; margin-left: auto; }
-.section-nav a {
+.tab-nav { display: flex; gap: 4px; margin-left: auto; }
+.tab-btn {
   color: var(--text-dim);
-  text-decoration: none;
+  background: transparent;
+  border: 1px solid transparent;
   font-size: 0.85rem;
-  padding: 6px 12px;
+  font-weight: 600;
+  padding: 6px 14px;
   border-radius: 6px;
+  cursor: pointer;
   transition: background 0.15s, color 0.15s;
 }
-.section-nav a:hover { background: var(--panel-alt); color: var(--text); }
+.tab-btn:hover { background: var(--panel-alt); color: var(--text); }
+.tab-btn.active { background: var(--accent); color: #fff; }
+.tab-panel[hidden] { display: none; }
 
 .controls { display: flex; gap: 8px; align-items: center; }
 .controls label { font-size: 0.85rem; color: var(--text-dim); }
@@ -75,14 +80,17 @@ button:hover { background: var(--accent-hover); }
 button:active { transform: scale(0.97); }
 
 /* ---------- Layout ---------- */
-main { display: flex; flex-direction: column; gap: 28px; padding: 24px; max-width: 1400px; margin: 0 auto; width: 100%; }
-section { scroll-margin-top: 70px; }
+main { padding: 24px; max-width: 1400px; margin: 0 auto; width: 100%; }
+.tab-panel { display: flex; flex-direction: column; gap: 28px; }
 section > h2, .global-header h2 { font-size: 1.05rem; margin: 0 0 14px 0; font-weight: 700; }
 .hint { font-weight: 400; color: var(--text-faint); font-size: 0.8rem; }
 
-.map-panel { display: flex; gap: 16px; flex-wrap: wrap; }
-.map-card { border-radius: 10px; overflow: hidden; border: 1px solid var(--border); flex: 2 1 500px; min-width: 300px; }
+.map-panel { display: flex; flex-direction: column; gap: 16px; }
+.split-row { display: flex; gap: 16px; flex-wrap: wrap; }
+.map-card { border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
+.map-card-full { width: 100%; }
 #map { height: 440px; }
+.map-hint { margin: 0; padding: 8px 14px; font-size: 0.78rem; color: var(--text-faint); background: var(--panel-alt); border-top: 1px solid var(--border); }
 
 .animating-indicator[hidden] { display: none; }
 .animating-indicator {
@@ -197,6 +205,23 @@ section > h2, .global-header h2 { font-size: 1.05rem; margin: 0 0 14px 0; font-w
 .legend .dot.heo { background: var(--heo); }
 .legend-hint { font-size: 0.75rem; color: var(--text-faint); margin-left: 4px; }
 
+/* ---------- Understanding Orbits ---------- */
+.orbits-intro { max-width: 70ch; margin: -8px 0 16px 0; }
+.orbits-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+.orbit-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px 18px;
+}
+.orbit-card-head { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.orbit-card-head .dot { width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0; }
+.orbit-card-head h3 { margin: 0; font-size: 0.95rem; }
+.orbit-card p { font-size: 0.85rem; margin: 6px 0; line-height: 1.5; }
+.orbit-card p:not(.orbit-stat) { color: var(--text-dim); }
+.orbit-stat { color: var(--text); }
+.orbit-stat strong { color: var(--text-faint); font-weight: 600; }
+
 /* ---------- Leaflet tweaks ---------- */
 .leaflet-container { background: #0e1626; }
 .leaflet-popup-content-wrapper { background: var(--panel-alt); color: var(--text); border-radius: 8px; }
@@ -212,7 +237,7 @@ footer {
 
 @media (max-width: 640px) {
   header { flex-direction: column; align-items: stretch; gap: 12px; }
-  .section-nav { margin-left: 0; justify-content: space-between; }
+  .tab-nav { margin-left: 0; justify-content: space-between; }
   .controls { flex-wrap: wrap; }
   main { padding: 16px; gap: 20px; }
   #map, #globalMap { height: 320px; }

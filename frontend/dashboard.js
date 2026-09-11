@@ -3,8 +3,8 @@ let orbitChart, orbitDurationChart, topSatChart;
 const PALETTE = ["#38bdf8", "#f59e0b", "#a78bfa", "#34d399", "#f472b6", "#fbbf24"];
 const ORBIT_COLOR = { LEO: "#38bdf8", MEO: "#a78bfa", GEO: "#f59e0b", HEO: "#f472b6" };
 
-window.loadInsights = async function loadInsights(city) {
-  const res = await fetch(`/api/insights?city=${encodeURIComponent(city)}&hours=48`);
+window.loadInsights = async function loadInsights(locationQueryString) {
+  const res = await fetch(`/api/insights?${locationQueryString}&hours=48`);
   const data = await res.json();
 
   document.getElementById("passesPerDayStat").textContent = data.passes_per_day;

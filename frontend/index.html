@@ -17,81 +17,133 @@
       <select id="city-select"></select>
       <button id="refresh-btn">Find Passes</button>
     </div>
-    <nav class="section-nav">
-      <a href="#map-section">Map &amp; Passes</a>
-      <a href="#dashboard-section">Dashboard</a>
-      <a href="#global-section">Global Tracking</a>
+    <nav class="tab-nav">
+      <button class="tab-btn active" data-tab="tab-map-passes" type="button">Map &amp; Passes</button>
+      <button class="tab-btn" data-tab="tab-global-tracking" type="button">Global Tracking</button>
     </nav>
   </header>
 
   <main>
-    <section id="map-section" class="map-panel">
-      <div class="map-card">
-        <div id="animating-indicator" class="animating-indicator" hidden>
-          <span>&#9679; Animating <strong id="animating-name"></strong>
-            <span id="ground-track-note" class="ground-track-note"></span>
-          </span>
-          <button id="stop-animation-btn" type="button">Stop</button>
+    <div id="tab-map-passes" class="tab-panel">
+      <section id="map-section" class="map-panel">
+        <div class="map-card map-card-full">
+          <div id="animating-indicator" class="animating-indicator" hidden>
+            <span>&#9679; Animating <strong id="animating-name"></strong>
+              <span id="ground-track-note" class="ground-track-note"></span>
+            </span>
+            <button id="stop-animation-btn" type="button">Stop</button>
+          </div>
+          <div id="map"></div>
+          <p class="map-hint">Click anywhere on the map to check passes for that exact point, or pick a city above.</p>
         </div>
-        <div id="map"></div>
-      </div>
-      <div class="pass-list-wrap">
-        <h2>Visible Right Now</h2>
-        <ul id="visible-now-list"></ul>
-      </div>
-      <div class="pass-list-wrap">
-        <h2>Upcoming Passes <span class="hint">(next 48h)</span></h2>
-        <ul id="pass-list"></ul>
-      </div>
-    </section>
+        <div class="split-row">
+          <div class="pass-list-wrap">
+            <h2>Visible Right Now</h2>
+            <ul id="visible-now-list"></ul>
+          </div>
+          <div class="pass-list-wrap">
+            <h2>Upcoming Passes <span class="hint">(next 48h)</span></h2>
+            <ul id="pass-list"></ul>
+          </div>
+        </div>
+      </section>
 
-    <section id="dashboard-section" class="dashboard-panel">
-      <h2>Insights Dashboard</h2>
-      <div class="charts-row">
-        <div class="chart-card">
-          <h3>Orbit Type Distribution</h3>
-          <div class="chart-canvas-wrap"><canvas id="orbitTypeChart"></canvas></div>
-          <p class="chart-empty" hidden>No passes in this window yet - satellite data may still be loading.</p>
+      <section id="dashboard-section" class="dashboard-panel">
+        <h2>Insights Dashboard</h2>
+        <div class="charts-row">
+          <div class="chart-card">
+            <h3>Orbit Type Distribution</h3>
+            <div class="chart-canvas-wrap"><canvas id="orbitTypeChart"></canvas></div>
+            <p class="chart-empty" hidden>No passes in this window yet - satellite data may still be loading.</p>
+          </div>
+          <div class="chart-card">
+            <h3>LEO vs. Other Orbits: Avg. Pass Duration</h3>
+            <div class="chart-canvas-wrap"><canvas id="orbitDurationChart"></canvas></div>
+            <p class="chart-empty" hidden>No passes in this window yet - satellite data may still be loading.</p>
+          </div>
+          <div class="chart-card">
+            <h3>Most Frequently Visible Satellites</h3>
+            <div class="chart-canvas-wrap"><canvas id="topSatellitesChart"></canvas></div>
+            <p class="chart-empty" hidden>No visible passes in this window yet - satellite data may still be loading.</p>
+          </div>
         </div>
-        <div class="chart-card">
-          <h3>LEO vs. Other Orbits: Avg. Pass Duration</h3>
-          <div class="chart-canvas-wrap"><canvas id="orbitDurationChart"></canvas></div>
-          <p class="chart-empty" hidden>No passes in this window yet - satellite data may still be loading.</p>
+        <div class="stats-row">
+          <div class="chart-card stat-card">
+            <h3>Passes per Day</h3>
+            <p id="passesPerDayStat">-</p>
+          </div>
+          <div class="chart-card stat-card">
+            <h3>Average Pass Duration</h3>
+            <p id="avgDurationStat">-</p>
+          </div>
         </div>
-        <div class="chart-card">
-          <h3>Most Frequently Visible Satellites</h3>
-          <div class="chart-canvas-wrap"><canvas id="topSatellitesChart"></canvas></div>
-          <p class="chart-empty" hidden>No visible passes in this window yet - satellite data may still be loading.</p>
-        </div>
-      </div>
-      <div class="stats-row">
-        <div class="chart-card stat-card">
-          <h3>Passes per Day</h3>
-          <p id="passesPerDayStat">-</p>
-        </div>
-        <div class="chart-card stat-card">
-          <h3>Average Pass Duration</h3>
-          <p id="avgDurationStat">-</p>
-        </div>
-      </div>
-    </section>
+      </section>
 
-    <section id="global-section" class="global-panel">
-      <div class="global-header">
-        <h2>Live Global Tracking</h2>
-        <span id="live-updated" class="live-updated"></span>
-      </div>
-      <div class="map-card">
-        <div id="globalMap"></div>
-      </div>
-      <div class="legend">
-        <button class="legend-item" data-orbit="LEO"><i class="dot leo"></i>LEO</button>
-        <button class="legend-item" data-orbit="MEO"><i class="dot meo"></i>MEO</button>
-        <button class="legend-item" data-orbit="GEO"><i class="dot geo"></i>GEO</button>
-        <button class="legend-item" data-orbit="HEO"><i class="dot heo"></i>HEO</button>
-        <span class="legend-hint">Click to toggle &middot; click a satellite for details</span>
-      </div>
-    </section>
+      <section id="orbits-section" class="orbits-panel">
+        <h2>Understanding Orbits</h2>
+        <p class="hint orbits-intro">
+          A quick reference for what the orbit-type labels above actually mean - useful if
+          you're a student, a satellite-tracking hobbyist, or just curious why some passes
+          last minutes and others last hours.
+        </p>
+        <div class="orbits-grid">
+          <div class="orbit-card">
+            <div class="orbit-card-head"><i class="dot leo"></i><h3>LEO — Low Earth Orbit</h3></div>
+            <p class="orbit-stat"><strong>Altitude:</strong> ~160-2,000 km</p>
+            <p class="orbit-stat"><strong>Orbital period:</strong> ~90-120 minutes</p>
+            <p class="orbit-stat"><strong>Example here:</strong> ISS, Hubble Space Telescope</p>
+            <p>Close and fast (~7.8 km/s) - a LEO satellite crosses your entire sky in just a
+              few minutes, which is why these passes are short but frequent, often several
+              times a day.</p>
+          </div>
+          <div class="orbit-card">
+            <div class="orbit-card-head"><i class="dot meo"></i><h3>MEO — Medium Earth Orbit</h3></div>
+            <p class="orbit-stat"><strong>Altitude:</strong> ~2,000-35,786 km</p>
+            <p class="orbit-stat"><strong>Orbital period:</strong> a few hours up to ~12 hours</p>
+            <p class="orbit-stat"><strong>Example here:</strong> GPS satellites</p>
+            <p>High enough to move much more slowly across the sky than a LEO satellite - a
+              single MEO pass can stay above the horizon for hours instead of minutes.</p>
+          </div>
+          <div class="orbit-card">
+            <div class="orbit-card-head"><i class="dot geo"></i><h3>GEO — Geostationary Orbit</h3></div>
+            <p class="orbit-stat"><strong>Altitude:</strong> ~35,786 km</p>
+            <p class="orbit-stat"><strong>Orbital period:</strong> ~24 hours (matches Earth's rotation)</p>
+            <p class="orbit-stat"><strong>Example here:</strong> GOES, Meteosat weather satellites</p>
+            <p>Doesn't really "pass over" at all - a geostationary satellite stays fixed at
+              the same point in the sky permanently, which is exactly why it's used for
+              weather and broadcast satellites: a dish never has to move to track it.</p>
+          </div>
+          <div class="orbit-card">
+            <div class="orbit-card-head"><i class="dot heo"></i><h3>HEO — Highly Elliptical Orbit</h3></div>
+            <p class="orbit-stat"><strong>Altitude:</strong> varies hugely - low at perigee, very high at apogee</p>
+            <p class="orbit-stat"><strong>Orbital period:</strong> several hours, depending on the orbit's design</p>
+            <p class="orbit-stat"><strong>Example here:</strong> Chandra X-ray Observatory, NASA POLAR</p>
+            <p>Speed changes constantly through the orbit - fast near perigee (closest to
+              Earth), very slow near apogee (farthest away) - so pass duration for the same
+              satellite can vary enormously depending on where it is in its orbit.</p>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div id="tab-global-tracking" class="tab-panel" hidden>
+      <section id="global-section" class="global-panel">
+        <div class="global-header">
+          <h2>Live Global Tracking</h2>
+          <span id="live-updated" class="live-updated"></span>
+        </div>
+        <div class="map-card">
+          <div id="globalMap"></div>
+        </div>
+        <div class="legend">
+          <button class="legend-item" data-orbit="LEO"><i class="dot leo"></i>LEO</button>
+          <button class="legend-item" data-orbit="MEO"><i class="dot meo"></i>MEO</button>
+          <button class="legend-item" data-orbit="GEO"><i class="dot geo"></i>GEO</button>
+          <button class="legend-item" data-orbit="HEO"><i class="dot heo"></i>HEO</button>
+          <span class="legend-hint">Click to toggle &middot; click a satellite for details</span>
+        </div>
+      </section>
+    </div>
   </main>
 
   <footer>
@@ -103,5 +155,6 @@
   <script src="app.js"></script>
   <script src="dashboard.js"></script>
   <script src="global.js"></script>
+  <script src="tabs.js"></script>
 </body>
 </html>

@@ -400,3 +400,72 @@ would have been a syntax error) before it ever reached the browser. Verified
 with a browser test against a MEO satellite (POLAR, ~1,354 km ground-track
 distance from Visakhapatnam) and confirmed the existing animation/toggle/
 regression tests still pass.
+
+## Session 10 — Two-Tab Layout, Map-Click Location, Orbit Reference (2026-09-11)
+
+**Prompt:** (with two screenshots comparing a "Visible Right Now" click - blue
+ground-track line missing - against an "Upcoming Passes" click, where it
+showed clearly)
+> For upcoming satellites it is showing the blue color line, for visible
+> right now why it is not being shown? And the next thing - I wanted to make
+> a few improvements: two tabs. Tab one: map and passes, and below it insights,
+> and below that, for people to get knowledge, you can define what LEO etc.
+> are so they get good knowledge - then the next tab, live global tracker.
+> That's one improvement. And check: right now we pick a city and click Find
+> Passes, that's nice, but if we put a point on the map and click Find Pass,
+> that should also work - like choosing a point on the map, that would be
+> better. For the tabs, plan the UI and let me know so I can suggest a few
+> things before we give approval for coding. In tab one: map in one row, then
+> two boxes (visible, then upcoming), then data insights, then informative
+> content for students/satellite people about what's in orbit etc. Tab two:
+> live global tracking.
+
+Explained the missing blue line before planning anything: it's the same
+ground-track-vs-line-of-sight distinction as the previous session, one layer
+deeper. METEOSAT-9 is geostationary, so its ground track across any 20-minute
+window is a single point, not a line - there was nothing to draw a line
+between, not a rendering failure. Proposed fixing it by scaling the
+animation window to orbit type and labeling genuinely near-stationary
+satellites explicitly, tying directly into the requested educational content.
+
+Presented the two-tab layout plan (as asked, before writing code) and one
+open question: should a map click fetch immediately or still require
+pressing "Find Passes"?
+
+**Prompt:**
+> Yeah everything is works and it can go with immediate as you said rather
+> than again clicking on find pass. Once this is built then we can see how if
+> there are any changes to go ahead.
+
+Built the full plan:
+- Backend (`main.py`): `/api/passes`, `/api/insights`, and
+  `/api/currently-visible` now accept either a known `city` name or raw
+  `lat`/`lon` query params, resolved by one shared `resolve_location()`
+  helper - a real extension, not a frontend-only trick, so a map click works
+  for any point on Earth rather than snapping to the nearest of the 31
+  curated cities.
+- Frontend: replaced the single scrolling page with two tabs (`tabs.js`
+  handles switching; the previously-hidden global map needed an explicit
+  `invalidateSize()` call on first reveal, since Leaflet measures its
+  container at creation time and that container had zero size while its tab
+  was hidden). Added a click handler on the main map that immediately loads
+  passes for the clicked coordinates, resetting the city dropdown to show
+  it's now viewing a custom point. Added the "Understanding Orbits" section
+  (LEO/MEO/GEO/HEO explanations with real examples from the curated
+  satellite set) directly below the dashboard in Tab 1.
+- Fixed the actual blue-line issue: `VISIBLE_WINDOW_MINUTES` now scales the
+  "visible right now" animation window by orbit type (LEO 10 min, MEO/HEO 45
+  min, GEO 10 min since widening it wouldn't help), and the ground-track note
+  appends "(near-stationary orbit)" when a satellite's track genuinely spans
+  under 50km. Verified against live data: GOES 14/15 (GEO) correctly flagged
+  near-stationary while a GPS satellite (MEO) showed real movement with the
+  wider window - and confirmed Meteosat-9 (also GEO) was *not* flagged in one
+  test run, which on inspection is itself correct rather than a bug: its
+  particular inclination causes just enough real drift to cross the
+  threshold, which is genuine orbital variation, not something to paper over.
+
+Verified the whole rebuild with browser tests: tab switching, the global map
+rendering correctly after being hidden at load, a map click producing real
+passes for that exact point, and the full existing regression suite (getting-
+started state, city memory, toggle-to-stop, no console errors) still passing
+- plus a mobile-width screenshot confirming the new layout stacks cleanly.
