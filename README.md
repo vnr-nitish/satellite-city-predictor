@@ -1,8 +1,9 @@
 # Satellites Over My City Predictor 📡
 
-A web application that predicts when satellites pass over a chosen city, animates their
-ground track on a map, and surfaces analytics about pass frequency, orbit types, and
-visibility.
+A web application that predicts when satellites pass over a chosen city (or any point
+you click on the map), animates their ground track, and surfaces analytics about pass
+frequency, orbit types, and visibility - alongside a live 3D globe, a best-pass
+recommendation, and opt-in pass notifications.
 
 ## Problem Statement
 
@@ -240,7 +241,8 @@ files.
 
 ## Status
 
-Initial working slice: TLE ingestion, pass prediction, map animation, and insights
-dashboard are functional for the curated satellite set and city list. See
+Feature-complete against the assignment brief, plus three bonus features (live
+global tracking, a Best Pass spotlight, and client-side pass notifications) and a
+Home page with an interactive 3D globe. Deployed and running on Vercel. See
 [`docs/PROMPT_LOG.md`](docs/PROMPT_LOG.md) for a running log of how this project was
 developed with AI assistance.

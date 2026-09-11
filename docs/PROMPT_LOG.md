@@ -1,18 +1,18 @@
 # Development Prompt Log
 
 A running log of the actual prompts used to build this project with Claude Code.
-Each entry is the student's real request, lightly cleaned up for grammar and
-readability, not a rewritten summary - kept close to the original wording so
-the development process is transparent.
+Each entry is the student's real request, rewritten into clear, well-structured
+English rather than pasted verbatim - not a summary of what happened, but the
+actual prompt, cleaned up for grammar and sentence structure so the development
+process stays transparent and readable.
 
 ## Session 1 - Ideation & Planning (2026-09-10)
 
 **Prompt:**
-> There was an ML project assigned to me - I'll give you the context of what
-> they've told us. It's actually a satellite predictor. We need to do this
-> project: first ideate how we have to collect the data, what type of
-> analytics, etc. - you'll see once you read the assignment below. Let's
-> first ideate.
+> I've been assigned an ML project - let me give you the context. It's a
+> satellite predictor. We need to start by ideating: how we'll collect the
+> data, what kind of analytics to run, and so on - you'll see the details in
+> the assignment below. Let's begin with ideation.
 >
 > [Assignment text: "Satellites Over My City Predictor" - problem statement,
 > data sources (Celestrak, N2YO, Space-Track, Open-Notify, satellitemap.space),
@@ -20,37 +20,33 @@ the development process is transparent.
 > requirements (map-based visualization, animated satellite paths, upcoming
 > passes list, insights dashboard), and a bonus feature.]
 >
-> Let us try to understand the problem statement and how to do it, and going
-> through the requirements we can check how to proceed further. I hope we can
-> do this in VS Code. Do you want me to shift to Google Colab? Let me know.
+> Let's work through the problem statement and the requirements together so we
+> can decide how to proceed. I'd like to do this in VS Code - would you
+> recommend switching to Google Colab instead? Let me know.
 
 **Prompt:**
-> OK that's great. So what about the data collection - do we need it for
-> this, and what other websites will we be depending upon? Also for the
-> database - do we need to create one, do we require Supabase or Firebase or
-> something like that? List out what all we require, because I don't have any
-> pro versions. And if anything is required we can connect MCPs, I hope -
-> right, we can connect MCPs to your Claude Code? But I'm using this Claude
-> Code in VS Code so I don't know whether I can really connect it or not. I
-> still need to understand a few things - what is a TLE and what exactly is
-> an orbit propagator, etc. - make me understand them so I also know what's
-> happening. And what about the dashboard - I guess we also have a
-> requirement of a dashboard, right? You didn't speak about that. So what
-> about all those?
+> That's great. Now, about data collection - do we need it for this project,
+> and which websites will we depend on? And for the database - do we need to
+> set one up, and would we need something like Supabase or Firebase? Please
+> list out everything we'd require, since I don't have access to any paid
+> tiers. If any of that requires MCP servers, can we connect those to Claude
+> Code? I'm using Claude Code inside VS Code, so I'm not sure whether that's
+> possible here. I'd also like to understand a couple of concepts - what
+> exactly is a TLE, and what does an orbit propagator do? Please explain those
+> so I understand what's actually happening. And what about the dashboard -
+> isn't that also part of the requirements? You didn't mention it yet.
 
 **Prompt:**
-> You have to check in your code and prompts to GitHub from time to time (not
-> all at once) - every few hours, when you've done substantial work, check in
-> the code and prompts. I need to do this too because the evaluator wants it.
-> Make sure you check in the prompts in a good way - rephrase them so he'll
-> understand I'm not just copy-pasting. Also, no need to restrict ourselves to
-> the data sources listed - it's not only those four, we can search for other
-> things too, that's also mentioned. Look for other data sources as well, and
-> let's start building.
+> You'll need to commit the code and prompts to GitHub periodically rather
+> than all at once - every few hours, whenever there's substantial progress.
+> I need this for the evaluator's benefit. When you log the prompts, rephrase
+> them so it's clear I'm not just copy-pasting. Also, we're not restricted to
+> only the four data sources listed - the assignment allows other reliable
+> sources too, so feel free to look beyond those. Let's start building.
 
 *(Note: this instruction was later revised in Session 5 - the evaluator
 wants the actual prompts, not a rephrased summary. This log was rewritten
-accordingly.)*
+accordingly, and again in this final pass for clearer English throughout.)*
 
 **Follow-up:** provided the GitHub repo URL to push the project to:
 `https://github.com/vnr-nitish/satellite-city-predictor.git`
@@ -61,23 +57,22 @@ accordingly.)*
 the app based on the architecture agreed on in Session 1.)*
 
 **Prompt:**
-> I can continue, but the problem is I'm using your Claude Code currently in
-> VS Code in a folder called "New folder," but you've created another folder
-> called "satellite-city-predictor." If I open that folder, I won't be able
-> to see the current chat. So you should do something to solve this problem.
+> I can continue, but there's a problem: I'm running Claude Code in VS Code
+> inside a folder called "New folder," while you've created the project in a
+> separate folder called "satellite-city-predictor." If I open that folder
+> instead, I'll lose access to this chat. Can you find a way to resolve that?
 
 **Prompt:**
-> Also, if possible, rename that "New folder" as "satellite-city-predictor"
-> and push all the files of satellite-city-predictor to this new folder, so
-> that we don't have too many folders - that would be better. Let's start
-> working, let's continue the project.
+> Also, if possible, rename "New folder" to "satellite-city-predictor" and
+> move all the project files into it, so we're not left with redundant
+> folders - that would be cleaner. Let's get back to work on the project.
 
 ## Session 3 - Browser Verification (2026-09-10)
 
 *(No new prompt - continuing under the standing instruction to actually run
-and verify the app rather than just test the API.)*
+and verify the app in a browser rather than just testing the API.)*
 
-## Session 4 - Bonus Feature (2026-09-10)
+## Session 4 - Bonus Feature Selection (2026-09-10)
 
 **Selected via clarifying question:** build the bonus feature (live global
 satellite tracking) next, rather than polishing existing features first.
@@ -85,29 +80,28 @@ satellite tracking) next, rather than polishing existing features first.
 ## Session 5 - Prompt Log Correction (2026-09-10)
 
 **Prompt:**
-> Now let's run on the localhost so I can see the changes myself. And next
-> thing - in the prompt log, it seems the evaluator wants me to put the exact
-> prompts that I've given to you. So do that, with a few changes for sentence
-> forming, etc. - the way you're writing it now is not actually correct; you
-> need the exact prompts that I'm giving you.
+> Let's run this on localhost so I can see the changes myself. Also, about
+> the prompt log - it seems the evaluator expects the actual prompts I've
+> given you, not a summary. Please use my real prompts, lightly adjusted for
+> sentence structure, since the current format isn't quite right.
 
 This log was rewritten to reflect that: entries above now carry the actual
-prompts (lightly cleaned up for grammar) rather than a third-person paraphrase
-of what happened during each session.
+prompts (cleaned up for grammar) rather than a third-person paraphrase of
+what happened during each session.
 
 ## Session 6 - Data Processing / Data Analysis Cross-Check (2026-09-11)
 
 **Prompt:**
-> Now let's cross check data processing and data analysis so that if we have
-> missed anything we can add it.
+> Let's cross-check the Data Processing and Data Analysis requirements so we
+> can add anything we've missed.
 >
 > [Pasted the assignment's "Data Processing" bullet list: parsing TLE data,
 > converting orbital parameters into positions, filtering satellites visible
 > from a location, calculating pass start time/peak altitude/duration,
 > preparing data structures for mapping and visualization.]
 >
-> Give a summary for each and every point that whether we have included it or
-> not and also make the local host active.
+> Give me a summary of each point, stating whether we've covered it, and also
+> start up the local host.
 
 Cross-checked each point against the actual code. All five were already
 covered, with one real gap closed: the pass data only reported peak elevation
@@ -115,12 +109,11 @@ covered, with one real gap closed: the pass data only reported peak elevation
 assignment's feature list separately asks for. Added `peak_altitude_km`.
 
 **Prompt:**
-> Yes! Please cross check the same for data analysis and next thing I guess
-> the dashboard still gets to be updated even though if I have the city of
-> Bengaluru and click on find pass I'm not getting the data anything. Check if
-> you have to make anything active and currently the list of cities that are
-> showing are very few - so can we include few more cities like Visakhapatnam,
-> Pune, etc?
+> Yes, please do the same cross-check for Data Analysis. Also, I selected
+> Bengaluru and clicked Find Passes, but nothing came back - please check if
+> something needs to be activated on your end. And the city list currently
+> shown is quite limited - can we add more cities, like Visakhapatnam, Pune,
+> and others?
 
 Investigated the Bengaluru bug: a genuine 500 error, but self-inflicted during
 the previous session (the running server's SQLite file was deleted for
@@ -144,12 +137,11 @@ and changed the most-frequent-satellites calculation to count only visible
 passes.
 
 **Prompt:**
-> [Pasted the assignment's "Data Analysis" bullet list again.] Now let's cross
-> check this data analysis also - whether we have represented everything in
-> the dashboard or not. I feel the differences between the low [Earth orbit]
-> satellites and the others is missing, if I'm not wrong. If you have
-> implemented it, mention how you have implemented it - like what is the name
-> that you have given in the dashboard for them.
+> [Pasted the assignment's "Data Analysis" bullet list again.] Let's
+> cross-check whether we've represented all of this in the dashboard. I
+> believe the comparison between low Earth orbit satellites and other orbit
+> types might be missing - if it's already implemented, tell me how,
+> including what it's labeled as in the dashboard.
 
 Checked, and the concern was correct: the existing "Orbit Type Distribution"
 chart only showed how many passes came from each orbit type, not how those
@@ -165,9 +157,9 @@ orders of magnitude (verified against live data for Bengaluru: LEO averages
 invisible LEO bar. Verified in a real browser that it renders correctly.
 
 **Prompt:**
-> Could you please map those according to the front end visibility so that I
-> can clearly check. And also I wanted you to mention all the data resources
-> that you have used.
+> Could you map each of those to where they're actually visible on the front
+> end, so I can verify them clearly? Also, please list all the data sources
+> you've used.
 
 Produced a requirement -> exact UI element mapping table, and audited the
 codebase for every external resource actually referenced (not just what the
@@ -182,17 +174,17 @@ ephemeris) and the maps (OpenStreetMap tiles) were added. Corrected it.
 > [Pasted the assignment's "Web Application Requirements" section: core
 > map-based visualization, features list (city input, upcoming passes list,
 > start/end/duration display, animated path, satellite details), data insights
-> dashboard, bonus feature.] These are the exact front end requirements, so we
-> have to cross check whether we have built everything or not.
+> dashboard, bonus feature.] These are the exact front-end requirements, so
+> let's cross-check whether we've built everything.
 >
-> Currently you have built everything in a single page. Let's improve the
-> front end - if a single page is fine, that's fine, or if the data insights
-> should be separated into a tab, that can be done. Think about how the
-> front end can be improved and give me suggestions so I can review them and
-> approve before you code it. Make sure whether we've implemented everything,
-> and if so, name what we've called each thing in the front end so I can
-> understand. Also, the "LEO vs. Other Orbits: Avg. Pass Duration" section
-> showed nothing - check what's wrong with that.
+> Right now, everything lives on a single page - let's consider improving
+> that. A single page is fine if it works well, but splitting the data
+> insights into their own tab is also an option. Think through how the front
+> end could be improved and give me your suggestions so I can review and
+> approve before you write any code. Confirm whether every requirement has
+> been implemented, and if so, tell me what each one is called in the front
+> end. Also, the "LEO vs. Other Orbits: Avg. Pass Duration" section is showing
+> nothing - please check what's wrong.
 
 Investigated the blank-chart report and found a real bug: none of the three
 dashboard chart functions handled the case of empty pass data (which happens
@@ -211,18 +203,19 @@ plus formatted duration as human-readable (e.g. "5h 13m") since durations now
 range from seconds to hours across orbit types.
 
 **Prompt:**
-> The animated orbital paths are for the upcoming passes - if I click, yes I'm
-> getting it. For "visible right now" also it would be better if you could
-> enable that feature. After the peak elevation, let the altitude come on the
-> next line - we're projecting start, end, peak elevation, altitude, and
-> duration, so that would look better - and give the same layout for "visible
-> right now" so it looks aligned. The "LEO vs. other orbits" section is still
-> blank - try once more, otherwise we can remove that feature. Keep the
-> visibility notifications in progress, let's see what we can do with that.
-> Rather than tabs, the header-navigation suggestion you gave is fine - let's
-> go with that on a single page, but make the UI good - the cards, elements,
-> positions, etc. are currently very basic. Also make the live tracking
-> satellite map more interactive and responsive.
+> The animated orbital paths work for upcoming passes - clicking one does
+> show the animation. It would be good to enable that same feature for
+> "Visible Right Now" as well. Also, please move altitude onto its own line
+> after peak elevation - since we're displaying start, end, peak elevation,
+> altitude, and duration together, that would read better; apply the same
+> layout to "Visible Right Now" so both sections stay aligned. The "LEO vs.
+> Other Orbits" section is still showing blank - please try fixing it once
+> more; if it still doesn't work, we can remove it. Leave the
+> visibility-notifications feature as a work in progress for now - we'll
+> revisit it later. Rather than separate tabs, your header-navigation
+> suggestion works - let's keep everything on a single page, but improve the
+> UI: the cards, elements, and positions currently look quite basic. Also,
+> make the live satellite tracking map more interactive and responsive.
 
 Made "visible right now" satellites clickable too - since they have no
 rise/set window (they're already overhead), it animates a short ground-track
@@ -250,19 +243,19 @@ nothing cut off). Visibility notifications remain unimplemented, flagged as a
 future item per the request to leave it "in progress."
 
 **Prompt:** (with two screenshots)
-> In the Insights Dashboard, let Orbit Type Distribution, LEO vs. Other
-> Orbits, and Most Frequently Visible be in one single row; Passes per Day
-> and Average Duration can be in the second row - that way it will be nice.
-> And I guess City and Find Passes should be beside "Satellites Over My
-> City" rather than at the extreme right - maybe at the left it would be
-> better. Could you please explain why, without selecting anything, a few
-> orbits have been visible in the map and passes - I didn't select any city
-> yet. What are those? And even after selecting a city, we have "Upcoming"
-> and "Visible" - maybe "Visible" should come first, then "Upcoming" - swap
-> the columns. And if we click on a visible one it should show, and if we
-> click again it should disable - think about how a click shows it and a
-> second click stops it. Any other UI functionality suggestions you can
-> think of?
+> In the Insights Dashboard, let's put Orbit Type Distribution, LEO vs. Other
+> Orbits, and Most Frequently Visible Satellites in one row, with Passes per
+> Day and Average Duration in a second row below - that would look better.
+> Also, I think the City selector and Find Passes button should sit beside
+> "Satellites Over My City" rather than at the far right - closer to the left
+> would be better. Could you explain something: without selecting a city, I'm
+> already seeing some orbits/passes on the map. What are those, since I
+> haven't chosen a city yet? Also, once a city is selected, we have "Upcoming"
+> and "Visible" panels - I think "Visible" should come before "Upcoming," so
+> let's swap those columns. And when I click on a visible satellite, it
+> should animate; clicking it again should stop the animation - please think
+> through how to make a single click start it and a second click stop it. Do
+> you have any other UI suggestions?
 
 The "orbits visible before selecting a city" question led to a real bug: the
 app never cleared a previously-animated track when the city changed, so a
@@ -288,7 +281,7 @@ last-picked city, and a visible animating/stop indicator) rather than
 building them unprompted.
 
 **Prompt:**
-> Ok Pls build!
+> Okay, please build it!
 
 Built all four. First-ever visit now shows an explicit "Select a city..."
 placeholder with no default city loaded; a return visit remembers the last
@@ -306,12 +299,12 @@ setting `.hidden = true` in JavaScript had no visible effect. Fixed with an
 explicit `[hidden] { display: none }` override, verified the indicator now
 actually disappears when clicking Stop.
 
-## Session 9 - Vercel Deployment (2026-09-11)
+## Session 8 - Vercel Deployment (2026-09-11)
 
 **Prompt:**
-> OK as the next steps I wanted to deploy this in Vercel. So make it
-> deployment ready and give me the build commands that I need to use for
-> deploying. If I get any errors while deploying I'll let you know.
+> For the next step, I'd like to deploy this on Vercel. Please make it
+> deployment-ready and give me the build commands I'll need. If I run into
+> any errors while deploying, I'll let you know.
 
 Vercel's Python functions are serverless - stateless, ephemeral filesystem,
 no guarantee of continued execution after a response is sent - which
@@ -357,8 +350,8 @@ workarounds.
 **Prompt:** (with two screenshots of Vercel's GitHub-import configuration
 screen: Application Preset, Root Directory, Build/Output/Install command
 fields, and Environment Variables)
-> Let me know all the options that I have to choose and the commands as well
-> as the environmental variables.
+> Let me know all the options I need to choose, along with the commands and
+> any environment variables required.
 
 Walked through each dashboard field: keep the auto-detected FastAPI preset
 and `./` root directory, leave Build Command/Output Directory/Install
@@ -369,11 +362,11 @@ needed at all - the app has no API keys or secrets, since Celestrak,
 OpenStreetMap, and the JPL ephemeris are all public and keyless.
 
 **Prompt:**
-> I have deployed - everything is good. If you see the screenshot, I selected
-> the city Visakhapatnam, clicked on a visible satellite, but it's actually
-> showing near the coast of Africa, if I'm not wrong. I didn't understand how
-> that's happening - is the data being shown correct or not? I got the
-> question now!
+> I've deployed it, and everything looks good. In the screenshot, I selected
+> Visakhapatnam and clicked on a visible satellite, but its position is
+> showing up near the coast of Africa, if I'm reading it right. I don't
+> understand how that's happening - is the data being shown correct or not?
+> Now I've actually figured out what my real question is!
 
 Confirmed the deployment itself worked, then explained why the map showed a
 GPS satellite's animated position over the Mozambique Channel while its
@@ -388,7 +381,7 @@ elevation and GPS altitude) and confirming it matched both the distance and
 the compass direction shown in the screenshot.
 
 **Prompt:**
-> Yes! Pls do
+> Yes, please go ahead!
 
 (Confirming the offer to add a visual explanation for this.) Added a dashed
 line connecting the city marker to the satellite's live ground-track
@@ -401,24 +394,24 @@ with a browser test against a MEO satellite (POLAR, ~1,354 km ground-track
 distance from Visakhapatnam) and confirmed the existing animation/toggle/
 regression tests still pass.
 
-## Session 10 - Two-Tab Layout, Map-Click Location, Orbit Reference (2026-09-11)
+## Session 9 - Two-Tab Layout, Map-Click Location, Orbit Reference (2026-09-11)
 
 **Prompt:** (with two screenshots comparing a "Visible Right Now" click - blue
 ground-track line missing - against an "Upcoming Passes" click, where it
 showed clearly)
-> For upcoming satellites it is showing the blue color line, for visible
-> right now why it is not being shown? And the next thing - I wanted to make
-> a few improvements: two tabs. Tab one: map and passes, and below it insights,
-> and below that, for people to get knowledge, you can define what LEO etc.
-> are so they get good knowledge - then the next tab, live global tracker.
-> That's one improvement. And check: right now we pick a city and click Find
-> Passes, that's nice, but if we put a point on the map and click Find Pass,
-> that should also work - like choosing a point on the map, that would be
-> better. For the tabs, plan the UI and let me know so I can suggest a few
-> things before we give approval for coding. In tab one: map in one row, then
-> two boxes (visible, then upcoming), then data insights, then informative
-> content for students/satellite people about what's in orbit etc. Tab two:
-> live global tracking.
+> For upcoming passes, the blue ground-track line shows up correctly, but why
+> doesn't it show for "Visible Right Now"? Next, I'd like to make a couple of
+> improvements. First: split the app into two tabs. Tab one would have the
+> map and passes, with Insights below it, and below that, some educational
+> content defining terms like LEO for people who want to learn more. Tab two
+> would be the live global tracker. Second: right now we pick a city and
+> click Find Passes - that works well, but clicking a point on the map should
+> work the same way. For the tabs, please plan the UI first and let me know,
+> so I can suggest changes before we approve it for coding. In tab one, I'd
+> like the map in its own row, then two boxes below it (Visible, then
+> Upcoming), then the data insights, then the informative content about
+> orbits for students and satellite enthusiasts. Tab two stays as the live
+> global tracker.
 
 Explained the missing blue line before planning anything: it's the same
 ground-track-vs-line-of-sight distinction as the previous session, one layer
@@ -433,9 +426,9 @@ open question: should a map click fetch immediately or still require
 pressing "Find Passes"?
 
 **Prompt:**
-> Yeah everything is works and it can go with immediate as you said rather
-> than again clicking on find pass. Once this is built then we can see how if
-> there are any changes to go ahead.
+> Yes, everything works, and I agree it should fetch immediately, as you
+> suggested, rather than requiring another click on Find Passes. Once this is
+> built, we can review it and decide on any further changes.
 
 Built the full plan:
 - Backend (`main.py`): `/api/passes`, `/api/insights`, and
@@ -470,17 +463,17 @@ passes for that exact point, and the full existing regression suite (getting-
 started state, city memory, toggle-to-stop, no console errors) still passing
 - plus a mobile-width screenshot confirming the new layout stacks cleanly.
 
-## Session 11 - Formatting Cleanup, Zoom Bug, Feature Brainstorm (2026-09-11)
+## Session 10 - Formatting Cleanup, Zoom Bug, Feature Brainstorm (2026-09-11)
 
 **Prompt:**
-> Please remove all the em dashes and replace with hyphens. And next thing:
-> when I click on any city, if I've zoomed the map in and then click a
-> different city (e.g. Jaipur), the data updates but the map zooms back out
-> to close to the initial full view - that makes it hard to use. Why go back
-> to a wide view? That's not good. And: we should have some outstanding
-> feature - something extraordinary. I'm giving you an idea: a notification
-> if a satellite is passing, and something about the best view/best place to
-> actually see it. Something out of the box - do you have any ideas like that?
+> Please replace all em dashes with hyphens. Next issue: if I zoom into the
+> map and then select a different city (say, Jaipur), the data updates but
+> the map zooms back out to nearly the initial view - that makes it hard to
+> use. Why does it reset like that? That needs fixing. Also, I'd like the
+> site to have an outstanding, extraordinary feature. Here's an idea: a
+> notification when a satellite is about to pass, and something about
+> identifying the best time or place to actually see it. Something out of
+> the box - do you have any ideas along those lines?
 
 Replaced every em dash with a hyphen across the whole project (found in
 `README.md`, `docs/PROMPT_LOG.md`, and the orbit-card headings in
@@ -505,7 +498,7 @@ visualization of elevation/azimuth, optionally using device orientation.
 Recommended A+B as the strongest pairing, C as the flashiest but riskiest.
 
 **Prompt:**
-> Let's try to implement all the three.
+> Let's go ahead and implement all three.
 
 Built all three:
 - **Best Pass spotlight**: ranks fetched passes by peak elevation among
@@ -535,24 +528,22 @@ symptom, and fixed with the classic reliable pattern: wrap the SVG in a plain
 Verified with a full regression pass (existing suite, mobile screenshot,
 click-to-animate from a sky-plot dot) after the fix.
 
-## Session 12 - UI Refinement Pass (2026-09-11)
+## Session 11 - UI Refinement Pass (2026-09-11)
 
 **Prompt:**
-> I just wanted you to do some UI changes - the best spotlight, you can bring
-> it into the row with the total number [passes per day] and the average -
-> that way it'll be three good cards. After the map, the notify button is
-> good, that's good. In the visible section you've included some more which
-> - remove that, it's not looking good. And after each section it's better
-> if you give some space - I'm unable to differentiate between the sections,
-> so after every section there should be a small space so it gives good
-> detailing. Please walk through and think how we can improve the UI from a
-> user perspective, suggest me those changes, and then we can start working
-> on it.
+> I'd like a few UI changes. First, move the Best Pass spotlight into the row
+> with Passes per Day and Average Duration, so we end up with three clean
+> cards there. Second, the notify button below the map looks good as it is.
+> Third, in the "Visible" section, there's something extra you added that
+> doesn't look good - please remove it. Fourth, it's hard to tell where one
+> section ends and the next begins, so please add some spacing after each
+> section for clearer separation. Walk through the UI from a user's
+> perspective, suggest the changes you'd make, and then we can start on them.
 
-Asked one clarifying question before touching anything, since "in the
-visible section you've included some more" was ambiguous about which recent
-addition it meant: confirmed it was the sky-compass plot added last session,
-to be removed entirely rather than resized or relocated.
+Asked one clarifying question before touching anything, since "there's
+something extra you added in the visible section" was ambiguous about which
+recent addition it meant: confirmed it was the sky-compass plot added last
+session, to be removed entirely rather than resized or relocated.
 
 Implemented all three:
 - Removed the sky-compass plot entirely from "Visible Right Now" (HTML, CSS,
@@ -575,16 +566,15 @@ already captured earlier in the project - confirming the removed compass,
 the three-card stats row, and the section dividers all render correctly with
 live-shaped data, not just in the empty-state case.
 
-## Session 13 - Glossary Redesign & Mobile Responsiveness Audit (2026-09-11)
+## Session 12 - Glossary Redesign & Mobile Responsiveness Audit (2026-09-11)
 
 **Prompt:** (with a screenshot of the four orbit-type cards)
-> I actually wanted this section to be a knowledge [section], but not like
-> this - in one card you could say what is [a term], in the next card
-> something else, in the next what an orbit is, in the next what altitude
-> is - grouped by concept, not just for those four orbit types. It should be
-> a knowledgeable section - if somebody visits this website first, they
-> should be able to understand all the different words we've used. Let me
-> know how you'd do that, then I can suggest changes before we code it.
+> I wanted this section to be a knowledge base, but not structured the way it
+> currently is. One card could define one term, the next card another, and so
+> on - for example, what an orbit is, what altitude means - organized by
+> concept rather than just the four orbit types. It should genuinely help a
+> first-time visitor understand every term used on this site. Let me know how
+> you'd approach that, and I'll suggest any changes before we build it.
 
 Proposed restructuring from "four cards, one per orbit type" to "one card per
 term used anywhere in the app": Pass, Elevation, Azimuth, Altitude, Orbit
@@ -600,8 +590,8 @@ Confirmed the layout direction from the proposal and gave the explicit grid
 preference.
 
 **Prompt:**
-> Can you make this website responsive to iPhones and Android - nothing
-> should go against the screen (overflowing, etc.) - could you check that?
+> Can you make this website responsive on iPhones and Android devices?
+> Nothing should overflow off the screen - could you check that?
 
 Built the 8-card glossary as planned (orbit types condensed into one card
 with a compact color-coded mini-list rather than four cards), 4 columns on
@@ -617,17 +607,17 @@ container). Confirmed zero horizontal page overflow on every device tested,
 with full-page screenshots at each size to visually verify nothing was cut
 off or crowded.
 
-## Session 14 - Header Bug, Favicon, and a Second Responsiveness Pass (2026-09-11)
+## Session 13 - Header Bug, Favicon, and a Second Responsiveness Pass (2026-09-11)
 
 **Prompt:** (with two screenshots showing the header intact before scrolling,
 then apparently gone - only a sliver of the "Global Tracking" tab visible -
 after scrolling)
-> When I'm scrolling, the navbar kept disappearing - like it's at the back.
-> That's one issue. And if I click "Satellites Over My City" it should at
-> least be clickable - it's not; it should redirect to the same page, just
-> be clickable. We need a favicon icon - put one good icon related to this.
-> And check if there's anything else attractive or responsive we could
-> improve across the website.
+> When I scroll, the navbar keeps disappearing, as if it's rendering behind
+> other content - that's one issue. Also, clicking "Satellites Over My City"
+> should at least be clickable - right now it isn't; it can just redirect to
+> the same page, but it needs to respond to a click. We also need a favicon -
+> please add a good icon related to the site. And check if there's anything
+> else we could improve for visual appeal or responsiveness across the site.
 
 Found the real cause of the "disappearing" header: it was `position: sticky`
 with `z-index: 10`, but Leaflet's own controls/panes use z-index values up to
@@ -654,22 +644,22 @@ five more widths spanning the 480-1200px range, and reran the full
 regression suite - zero horizontal overflow anywhere, header stays visible
 on scroll at every size tested.
 
-## Session 15 - Three-Page Restructure with a 3D Globe (2026-09-11)
+## Session 14 - Three-Page Restructure with a 3D Globe (2026-09-11)
 
 **Prompt:** (with a screenshot of satellitemap.space's rotating 3D Earth
 visualization for inspiration)
-> To improve the website, I've planned it this way: let the website have
-> three different pages - Home, Map & Passes, and Global Live Tracking. On
-> the intro/Home page we should explain what the website does, how
-> satellites rotate (maybe with a rotating globe like the attached image),
-> and the Glossary section can live there too, along with an explanation of
-> how "best time" is calculated. In Map & Passes, remove the city selector
-> from the navbar and put it on that page itself, alongside clicking anywhere
-> on the map; Insights will have more room now. Global tracking stays as the
-> third tab. Tell me if this is good, and plan what should go on the intro
-> page based on your experience - it should be very user-friendly,
-> responsive, and 3D animated, and should also work well on iPhone and other
-> phones.
+> Here's how I've planned to improve the website: split it into three pages -
+> Home, Map & Passes, and Global Live Tracking. The Home page should
+> introduce what the website does and explain how satellites orbit, ideally
+> with a rotating globe like the one in the attached image. The Glossary
+> section can also live there, along with an explanation of how "best time"
+> is calculated. On the Map & Passes page, remove the city selector from the
+> navbar and place it on the page itself, alongside the option to click
+> anywhere on the map - Insights will have more room as a result. Global
+> Tracking stays as the third tab. Let me know if this plan works, and based
+> on your experience, suggest what the Home page should include. It should be
+> very user-friendly, responsive, and include 3D animation, and it needs to
+> work well on iPhone and other phones too.
 
 Proposed the full plan before coding: keep it as one page with tab-switching
 (not real separate URLs) to avoid duplicating the header and losing state
@@ -716,14 +706,14 @@ after the app was correctly changed, not an app bug. Reran full regression
 plus a mobile screenshot of the new Home page - zero horizontal overflow,
 globe and layout both render cleanly at 390px.
 
-## Session 16 - Glossary Wording and Header Centering (2026-09-11)
+## Session 15 - Glossary Wording and Header Centering (2026-09-11)
 
 **Prompt:** (with two screenshots - the Orbit Type glossary card, and the
 header with the tab row circled at the far right)
-> In the Orbit Type card, I told you to say what LEO means - that it's a
-> type of orbit, something like that - why are you writing other things
-> instead? And next: let's have the tab/pages row in the middle of the
-> header, not at the extreme right.
+> In the Orbit Type card, I asked you to explain what LEO means - that it's a
+> type of orbit, something along those lines - so why did you write something
+> else instead? Also, let's move the tab/page navigation to the center of the
+> header rather than the far right.
 
 Both concrete fixes: the "Orbit Type" glossary card jumped straight into the
 LEO/MEO/GEO/HEO mini-list without ever defining what "orbit type" itself
@@ -736,3 +726,25 @@ verified by comparing the header's and nav's computed center points
 be simplified away: with the city selector already relocated out of the
 header, the header is light enough now that the ~641-900px wrapping
 workaround from two sessions ago is no longer needed.
+
+## Session 16 - Glossary Consistency & Full Prompt Log Rewrite (2026-09-11)
+
+**Prompt:**
+> I feel the LEO/MEO/GEO/HEO mini-list in the Orbit Type card can be removed,
+> so that all the glossary cards have the same level of content and feel
+> consistent. After that, please update my GitHub README and the prompt log.
+> Go through and include all the actual prompts I've given you, but refine
+> the structure with good English and clear sentence framing - not just the
+> exact wording, but rewritten into well-formed sentences.
+
+Removed the mini-list from the Orbit Type card, folding the same information
+into a plain paragraph so all eight glossary cards share the same format and
+visual weight - verified with a screenshot comparing both rows of the grid
+side by side.
+
+Rewrote this entire prompt log from Session 1 onward: every quoted prompt
+polished into clear, well-structured English (fixing run-on sentences and
+rough phrasing while keeping the original meaning and first-person voice
+intact, not converting it into a third-person summary), and the session
+numbering gap at "Session 8" (a leftover from an earlier edit) closed by
+renumbering everything sequentially.
