@@ -574,3 +574,45 @@ by running a throwaway server instance seeded in-process with real TLE data
 already captured earlier in the project - confirming the removed compass,
 the three-card stats row, and the section dividers all render correctly with
 live-shaped data, not just in the empty-state case.
+
+## Session 13 - Glossary Redesign & Mobile Responsiveness Audit (2026-09-11)
+
+**Prompt:** (with a screenshot of the four orbit-type cards)
+> I actually wanted this section to be a knowledge [section], but not like
+> this - in one card you could say what is [a term], in the next card
+> something else, in the next what an orbit is, in the next what altitude
+> is - grouped by concept, not just for those four orbit types. It should be
+> a knowledgeable section - if somebody visits this website first, they
+> should be able to understand all the different words we've used. Let me
+> know how you'd do that, then I can suggest changes before we code it.
+
+Proposed restructuring from "four cards, one per orbit type" to "one card per
+term used anywhere in the app": Pass, Elevation, Azimuth, Altitude, Orbit
+Type (folded into a single compact card instead of four full-size ones),
+Visible/Sunlit, Ground Track, and TLE - plus renaming the section from
+"Understanding Orbits" to "Glossary" so it reads as a general reference
+rather than an orbit-types-only page.
+
+**Prompt:**
+> It's better if you keep 4 per row on wide screens.
+
+Confirmed the layout direction from the proposal and gave the explicit grid
+preference.
+
+**Prompt:**
+> Can you make this website responsive to iPhones and Android - nothing
+> should go against the screen (overflowing, etc.) - could you check that?
+
+Built the 8-card glossary as planned (orbit types condensed into one card
+with a compact color-coded mini-list rather than four cards), 4 columns on
+wide screens stepping down to 2 then 1 on narrower ones. Then audited
+responsiveness properly rather than eyeballing one screenshot: tested seven
+real device viewport sizes (iPhone SE through 14 Pro Max, three common
+Android sizes, and a tablet), checking the decisive signal - document
+scrollWidth vs. window innerWidth - rather than just looking for elements
+that visually extend past their container (which flagged Leaflet's own map
+tiles as "overflowing," a false positive, since tile rendering always
+extends past the viewport by design and is clipped by the map's own
+container). Confirmed zero horizontal page overflow on every device tested,
+with full-page screenshots at each size to visually verify nothing was cut
+off or crowded.

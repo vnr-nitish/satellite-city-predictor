@@ -24,7 +24,7 @@ orbital path on a map, along with a dashboard of derived insights.
 - **Frontend**: Plain HTML/CSS/JS, [Leaflet](https://leafletjs.com/) for the maps and
   animated ground track, [Chart.js](https://www.chartjs.org/) for the insights
   dashboard. No build tooling required. Two tabs: "Map & Passes" (location picker, map,
-  pass lists, dashboard, orbit-type reference) and "Global Tracking" (live world map).
+  pass lists, dashboard, glossary) and "Global Tracking" (live world map).
 
 ```
 backend/
@@ -138,10 +138,10 @@ itself a small piece of real data analysis rather than a hardcoded label.
   passes last minutes, MEO/HEO passes can last hours, visually obvious at a glance),
   passes/day, average pass duration, most frequently *visible* satellites (sunlit,
   not just geometrically above the horizon)
-- **"Understanding Orbits" reference**: a short explanation of LEO/MEO/GEO/HEO (typical
-  altitude, orbital period, a real example from the curated satellite set, and what it
-  means for pass behavior), aimed at students or hobbyists who want to understand *why*
-  the data looks the way it does, not just see the numbers
+- **Glossary**: a field guide to every term used across the app (Pass, Elevation,
+  Azimuth, Altitude, Orbit Type, Visible/Sunlit, Ground Track, TLE), one concept per
+  card, 4 per row on wide screens - aimed at a first-time visitor who doesn't yet know
+  what "elevation 62°, azimuth 226°" means, not just an orbit-type reference
 - **Best Pass spotlight**: sits in the Insights Dashboard's stat row, automatically
   highlighting the single best upcoming viewing opportunity (the visible pass with the
   highest peak elevation) with a live countdown to rise time - an answer to "what's

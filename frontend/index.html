@@ -91,47 +91,63 @@
       <div class="section-divider"></div>
 
       <section id="orbits-section" class="orbits-panel">
-        <h2>Understanding Orbits</h2>
+        <h2>Glossary</h2>
         <p class="hint orbits-intro">
-          A quick reference for what the orbit-type labels above actually mean - useful if
-          you're a student, a satellite-tracking hobbyist, or just curious why some passes
-          last minutes and others last hours.
+          A field guide to the terms used throughout this app - if you're new here, or just
+          want to know what "elevation 62&deg;, azimuth 226&deg;" actually means, start here.
         </p>
         <div class="orbits-grid">
           <div class="orbit-card">
-            <div class="orbit-card-head"><i class="dot leo"></i><h3>LEO - Low Earth Orbit</h3></div>
-            <p class="orbit-stat"><strong>Altitude:</strong> ~160-2,000 km</p>
-            <p class="orbit-stat"><strong>Orbital period:</strong> ~90-120 minutes</p>
-            <p class="orbit-stat"><strong>Example here:</strong> ISS, Hubble Space Telescope</p>
-            <p>Close and fast (~7.8 km/s) - a LEO satellite crosses your entire sky in just a
-              few minutes, which is why these passes are short but frequent, often several
-              times a day.</p>
+            <div class="orbit-card-head"><h3>Pass</h3></div>
+            <p>The whole time a satellite is above your horizon - it rises, climbs to its
+              highest point (peak), then sets. Everything in "Upcoming Passes" describes one
+              of these, start to finish.</p>
           </div>
           <div class="orbit-card">
-            <div class="orbit-card-head"><i class="dot meo"></i><h3>MEO - Medium Earth Orbit</h3></div>
-            <p class="orbit-stat"><strong>Altitude:</strong> ~2,000-35,786 km</p>
-            <p class="orbit-stat"><strong>Orbital period:</strong> a few hours up to ~12 hours</p>
-            <p class="orbit-stat"><strong>Example here:</strong> GPS satellites</p>
-            <p>High enough to move much more slowly across the sky than a LEO satellite - a
-              single MEO pass can stay above the horizon for hours instead of minutes.</p>
+            <div class="orbit-card-head"><h3>Elevation</h3></div>
+            <p>How high above your horizon to look, in degrees. 0&deg; is right at the
+              horizon; 90&deg; is directly overhead. "Peak elevation" is the highest point a
+              pass reaches.</p>
           </div>
           <div class="orbit-card">
-            <div class="orbit-card-head"><i class="dot geo"></i><h3>GEO - Geostationary Orbit</h3></div>
-            <p class="orbit-stat"><strong>Altitude:</strong> ~35,786 km</p>
-            <p class="orbit-stat"><strong>Orbital period:</strong> ~24 hours (matches Earth's rotation)</p>
-            <p class="orbit-stat"><strong>Example here:</strong> GOES, Meteosat weather satellites</p>
-            <p>Doesn't really "pass over" at all - a geostationary satellite stays fixed at
-              the same point in the sky permanently, which is exactly why it's used for
-              weather and broadcast satellites: a dish never has to move to track it.</p>
+            <div class="orbit-card-head"><h3>Azimuth</h3></div>
+            <p>Which direction to face, as a compass bearing: 0&deg;=North, 90&deg;=East,
+              180&deg;=South, 270&deg;=West.</p>
           </div>
           <div class="orbit-card">
-            <div class="orbit-card-head"><i class="dot heo"></i><h3>HEO - Highly Elliptical Orbit</h3></div>
-            <p class="orbit-stat"><strong>Altitude:</strong> varies hugely - low at perigee, very high at apogee</p>
-            <p class="orbit-stat"><strong>Orbital period:</strong> several hours, depending on the orbit's design</p>
-            <p class="orbit-stat"><strong>Example here:</strong> Chandra X-ray Observatory, NASA POLAR</p>
-            <p>Speed changes constantly through the orbit - fast near perigee (closest to
-              Earth), very slow near apogee (farthest away) - so pass duration for the same
-              satellite can vary enormously depending on where it is in its orbit.</p>
+            <div class="orbit-card-head"><h3>Altitude</h3></div>
+            <p>How far above Earth's <em>surface</em> the satellite is actually orbiting, in
+              km - not the same as elevation. A satellite can be very high in altitude while
+              still low in elevation (near your horizon), or the reverse.</p>
+          </div>
+          <div class="orbit-card">
+            <div class="orbit-card-head"><h3>Orbit Type</h3></div>
+            <ul class="orbit-type-mini-list">
+              <li><i class="dot leo"></i><strong>LEO</strong> &middot; ~160-2,000 km &middot; passes last minutes</li>
+              <li><i class="dot meo"></i><strong>MEO</strong> &middot; ~2,000-35,786 km &middot; passes last hours</li>
+              <li><i class="dot geo"></i><strong>GEO</strong> &middot; ~35,786 km &middot; stays fixed, no real "pass"</li>
+              <li><i class="dot heo"></i><strong>HEO</strong> &middot; varies hugely &middot; duration varies a lot</li>
+            </ul>
+          </div>
+          <div class="orbit-card">
+            <div class="orbit-card-head"><h3>Visible (Sunlit)</h3></div>
+            <p>Being above the horizon isn't the same as being visible to the eye - a
+              satellite also needs to be lit by sunlight while your sky is dark (dawn, dusk,
+              or night) to actually be seen. Passes and "Visible Right Now" both check for
+              this.</p>
+          </div>
+          <div class="orbit-card">
+            <div class="orbit-card-head"><h3>Ground Track</h3></div>
+            <p>The point on Earth's surface directly beneath a satellite at a given moment.
+              The animated line on the map traces this - not a line pointing at the satellite
+              in the sky, which is why it can look far from your city for high-altitude
+              satellites.</p>
+          </div>
+          <div class="orbit-card">
+            <div class="orbit-card-head"><h3>TLE</h3></div>
+            <p>Two-Line Element set - the compact, standardized snapshot of a satellite's
+              orbit this entire app is built from, published by NORAD and pulled live from
+              Celestrak. Every number on this page traces back to one of these.</p>
           </div>
         </div>
       </section>

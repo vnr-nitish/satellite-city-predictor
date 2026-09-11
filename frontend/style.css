@@ -223,16 +223,23 @@ section > h2, .global-header h2 { font-size: 1.05rem; margin: 0 0 14px 0; font-w
 }
 .legend-item:hover { border-color: var(--text-dim); }
 .legend-item-off { opacity: 0.4; }
-.legend .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; }
-.legend .dot.leo { background: var(--leo); }
-.legend .dot.meo { background: var(--meo); }
-.legend .dot.geo { background: var(--geo); }
-.legend .dot.heo { background: var(--heo); }
+.dot { display: inline-block; border-radius: 50%; flex-shrink: 0; }
+.dot.leo { background: var(--leo); }
+.dot.meo { background: var(--meo); }
+.dot.geo { background: var(--geo); }
+.dot.heo { background: var(--heo); }
+.legend .dot { width: 9px; height: 9px; }
 .legend-hint { font-size: 0.75rem; color: var(--text-faint); margin-left: 4px; }
 
-/* ---------- Understanding Orbits ---------- */
+/* ---------- Glossary ---------- */
 .orbits-intro { max-width: 70ch; margin: -8px 0 16px 0; }
-.orbits-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+.orbits-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+@media (max-width: 1150px) {
+  .orbits-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 560px) {
+  .orbits-grid { grid-template-columns: 1fr; }
+}
 .orbit-card {
   background: var(--panel);
   border: 1px solid var(--border);
@@ -240,12 +247,15 @@ section > h2, .global-header h2 { font-size: 1.05rem; margin: 0 0 14px 0; font-w
   padding: 16px 18px;
 }
 .orbit-card-head { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
-.orbit-card-head .dot { width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0; }
+.orbit-card-head .dot { width: 11px; height: 11px; }
 .orbit-card-head h3 { margin: 0; font-size: 0.95rem; }
-.orbit-card p { font-size: 0.85rem; margin: 6px 0; line-height: 1.5; }
-.orbit-card p:not(.orbit-stat) { color: var(--text-dim); }
-.orbit-stat { color: var(--text); }
-.orbit-stat strong { color: var(--text-faint); font-weight: 600; }
+.orbit-card p { font-size: 0.85rem; margin: 6px 0; line-height: 1.5; color: var(--text-dim); }
+.orbit-card p em { color: var(--text); font-style: normal; font-weight: 600; }
+
+.orbit-type-mini-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.orbit-type-mini-list li { display: flex; align-items: baseline; gap: 6px; font-size: 0.8rem; color: var(--text-dim); }
+.orbit-type-mini-list .dot { width: 8px; height: 8px; margin-top: 2px; }
+.orbit-type-mini-list strong { color: var(--text); }
 
 /* ---------- Leaflet tweaks ---------- */
 .leaflet-container { background: #0e1626; }
